@@ -1,8 +1,5 @@
-# Package: [Insert Package Name Here]
+# Package: pt.isec.pa.deepsea
 
-**Student Instructions:**
-Please delete this text and replace it with a brief description of this package.
-
-In your description, make sure to explain:
-* The main objective and responsibility of this package.
-* The type of classes, interfaces or functionalities that belong inside it.
+**Descrição:**
+Pacote principal da aplicação "Deep Sea Mining".
+Contém a classe de arranque e agrupa todos os subpacotes do projeto, refletindo a separação arquitetural entre a lógica de negócio (model) e a interface gráfica (ui).

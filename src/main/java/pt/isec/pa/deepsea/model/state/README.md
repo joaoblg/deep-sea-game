@@ -1,8 +1,5 @@
-# Package: [Insert Package Name Here]
+# Package: pt.isec.pa.deepsea.model.state
 
-**Student Instructions:**
-Please delete this text and replace it with a brief description of this package.
-
-In your description, make sure to explain:
-* The main objective and responsibility of this package.
-* The type of classes, interfaces or functionalities that belong inside it.
+**Descrição:**
+Gere os estados da aplicação.
+Contém as interfaces e classes que implementam o padrão State, representando as diferentes fases do jogo (ex: superfície, descida, exploração) e o controlo de transições.

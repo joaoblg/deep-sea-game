@@ -1,8 +1,5 @@
-# Package: [Insert Package Name Here]
+# Package: pt.isec.pa.deepsea.ui.res
 
-**Student Instructions:**
-Please delete this text and replace it with a brief description of this package.
-
-In your description, make sure to explain:
-* The main objective and responsibility of this package.
-* The type of classes, interfaces or functionalities that belong inside it.
+**Descrição:**
+Base para a gestão de recursos multimédia da aplicação.
+Contém as classes responsáveis pelo carregamento e disponibilização em memória de imagens, fontes e sons (ex: utilizando o padrão Multiton).

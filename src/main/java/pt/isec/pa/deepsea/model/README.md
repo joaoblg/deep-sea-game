@@ -1,8 +1,5 @@
-# Package: [Insert Package Name Here]
+# Package: pt.isec.pa.deepsea.model
 
-**Student Instructions:**
-Please delete this text and replace it with a brief description of this package.
-
-In your description, make sure to explain:
-* The main objective and responsibility of this package.
-* The type of classes, interfaces or functionalities that belong inside it.
+**Descrição:**
+Responsável por agregar a lógica de negócio do jogo.
+Contém a classe Facade (Gestor/Manager) que interliga os dados e a máquina de estados, distribuindo as operações solicitadas e isolando o modelo da interface gráfica.
