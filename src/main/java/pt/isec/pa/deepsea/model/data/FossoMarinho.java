@@ -9,7 +9,7 @@ import java.util.Random;
  */
 public class FossoMarinho implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int[][] grelha;
+    private ElemFosso[][] grelha;
     private int largura, altura;
 
     /**
@@ -20,12 +20,16 @@ public class FossoMarinho implements Serializable {
     public FossoMarinho(int largura, int altura) {
         this.largura = largura;
         this.altura = altura;
-        this.grelha = new int[altura][largura];
+        this.grelha = new ElemFosso[altura][largura];
         gerarRochas();
     }
 
+    public ElemFosso getCont(int l, int c) { return grelha[l][c]; }
+
     /**
-     * Gera as rochas laterais garantindo a navegabilidade (oscilação máx. 1 coluna por linha).
+     * Gera as rochas laterais do fosso de forma procedimental.
+     * Garante que a passagem permanece navegável e que o volume de rochas
+     * não ultrapassa 50% da largura total em cada linha.
      */
     private void gerarRochas() {
         Random rd = new Random();
@@ -38,13 +42,21 @@ public class FossoMarinho implements Serializable {
 
             if (margemEsq < 0) margemEsq = 0;
             if (margemDir >= largura) margemDir = largura - 1;
-            if ((margemEsq + (largura - 1 - margemDir)) > largura * 0.5) {
-                margemEsq--;
-                margemDir++;
+
+            while (((margemEsq + 1) + (largura - margemDir)) > (largura / 2)) {
+                if (margemEsq > 0 && (margemEsq + 1) >= (largura - margemDir)) {
+                    margemEsq--;
+                } else if (margemDir < largura - 1) {
+                    margemDir++;
+                } else if (margemEsq > 0) {
+                    margemEsq--;
+                } else {
+                    break;
+                }
             }
 
-            for (int j = 0; j <= margemEsq; j++) grelha[i][j] = 1;
-            for (int j = margemDir; j < largura; j++) grelha[i][j] = 1;
+            for (int j = 0; j <= margemEsq; j++) grelha[i][j] = new Rocha();
+            for (int j = margemDir; j < largura; j++) grelha[i][j] = new Rocha();
         }
     }
 
@@ -62,8 +74,12 @@ public void gerarObstaculos() {
             int l = rd.nextInt(altura);
             int c = rd.nextInt(largura);
             
-            if (grelha[l][c] == 0) {
-                grelha[l][c] = GeradorID.gerar();
+            if (grelha[l][c] == null) {
+                if (rd.nextBoolean()){
+                    grelha[l][c]=new AnimalMarinho();
+                }else{
+                    grelha[l][c]=new CorrenteMarinha();
+                }
                 colocados++;
             }
             tentativas++;
@@ -76,16 +92,18 @@ public void gerarObstaculos() {
     public void configurarModoDefesa() {
         for (int i = 0; i < altura; i++) {
             for (int j = 0; j < largura; j++) {
-                grelha[i][j] = 0;
+                grelha[i][j] = null;
             }
         }
         
         for (int i = 0; i < altura; i++) {
-            grelha[i][0] = 1;
-            grelha[i][largura - 1] = 1;
+            grelha[i][0] = new Rocha();
+            grelha[i][largura - 1] = new Rocha();
         }
-        
-        grelha[altura / 2][largura / 2] = GeradorID.gerar();
-        grelha[(altura / 2) + 1][largura / 2] = GeradorID.gerar();
+
+        if (altura > 5 && largura > 5) {
+            grelha[2][largura / 2] = new AnimalMarinho();
+            grelha[5][largura / 2] = new CorrenteMarinha();
+        }
     }
 }

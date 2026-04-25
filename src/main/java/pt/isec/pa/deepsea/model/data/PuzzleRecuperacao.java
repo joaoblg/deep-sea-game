@@ -112,6 +112,48 @@ public class PuzzleRecuperacao implements Serializable {
         return false;
     }
 
+
+    /**
+     * Tenta mover uma peça na direção indicada em direção ao espaço vazio.
+     * @param direcao A direção para onde a PEÇA se deve deslocar.
+     * @return true se o movimento foi possível.
+     */
+    public boolean moverPeca(Direcoes direcao) {
+        if (movimentos >= Constantes.MAX_MOV_PUZZLE) {
+            return false;
+        }
+
+        int linZero = -1, colZero = -1;
+        for (int i = 0; i < TAMANHO; i++) {
+            for (int j = 0; j < TAMANHO; j++) {
+                if (grelha[i][j] == 0) {
+                    linZero = i;
+                    colZero = j;
+                }
+            }
+        }
+
+
+        int targetLin = linZero;
+        int targetCol = colZero;
+
+        switch (direcao) {
+            case CIMA -> targetLin = linZero + 1;
+            case BAIXO -> targetLin = linZero - 1;
+            case ESQUERDA -> targetCol = colZero + 1;
+            case DIREITA -> targetCol = colZero - 1;
+        }
+
+
+        if (targetLin >= 0 && targetLin < TAMANHO && targetCol >= 0 && targetCol < TAMANHO) {
+            return moverPeca(targetLin, targetCol);
+        }
+
+        return false;
+    }
+
+
+
     /**
      * Verifica se todas as peças estão ordenadas de 1 a 15.
      * @return true se o puzzle estiver resolvido.

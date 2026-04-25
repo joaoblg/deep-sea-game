@@ -1,8 +1,12 @@
 package pt.isec.pa.deepsea.model;
 
-import pt.isec.pa.deepsea.model.data.*;
-
 import java.io.Serializable;
+
+import pt.isec.pa.deepsea.model.data.CelulaSuperficie;
+import pt.isec.pa.deepsea.model.data.Constantes;
+import pt.isec.pa.deepsea.model.data.Drone;
+import pt.isec.pa.deepsea.model.data.Navio;
+import pt.isec.pa.deepsea.model.data.SuperficieMarinha;
 
 /**
  * Classe principal do modelo de dados que agrega todos os componentes do jogo.
@@ -23,6 +27,24 @@ public class Jogo implements Serializable {
         inicioJogo();
     }
 
+    /**
+     * Obtém o navio principal do jogo.
+     *
+     * @return Instância do Navio.
+     */
+    public Navio getNavio() {
+        return navio;
+    }
+
+    /**
+     * Obtém a superfície marinha associada ao jogo.
+     *
+     * @return Instância da Superfície Marinha.
+     */
+    public SuperficieMarinha getSuperficie() {
+        return superficie;
+    }
+    
     /**
      * Configura o estado inicial: posiciona o navio, cria a frota de drones e gera os recursos.
      */
@@ -68,18 +90,15 @@ public class Jogo implements Serializable {
             }
         }
 
-        // Para os artefactos
         int centroLin = nLin / 2;
         int centroCol = nCol / 2;
 
         int metadeArtefactos = Constantes.NUM_ARTEFACTOS / 2;
         int restoArtefactos = Constantes.NUM_ARTEFACTOS - metadeArtefactos;
 
-        // Metade no centro (Começa no ID 1)
         CelulaSuperficie zona1 = superficie.getCelula(centroLin, centroCol);
         zona1.getFundoM().addArtefactosDefesa(1, metadeArtefactos);
 
-        // Outra metade ao lado (Começa no ID a seguir à primeira metade)
         CelulaSuperficie zona2 = superficie.getCelula(centroLin, centroCol + 1);
         zona2.getFundoM().addArtefactosDefesa(metadeArtefactos + 1, restoArtefactos);
     }

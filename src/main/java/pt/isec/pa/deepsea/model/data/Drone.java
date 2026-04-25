@@ -1,8 +1,8 @@
 package pt.isec.pa.deepsea.model.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.Serializable;
 
 /**
  * Representa um drone de exploração subaquática.
@@ -14,7 +14,6 @@ public class Drone implements Serializable {
     private int capCombustivel;
     private int integridadeCasco;
     private int indiceDanoPrimo;
-    //o navio n tem loc propria
     private boolean noNavio;
     private int linhaPos;
     private int linhaCol;
@@ -82,14 +81,43 @@ public class Drone implements Serializable {
         this.linhaCol = col;
     }
 
+    public void adicionarMinerios(int quant) {
+        this.mineriosTransp += quant;
+    }
 
+    public int getLinhaPos() { return linhaPos; }
+    public int getColunaPos() { return linhaCol; }
+
+    /** @return Quantidade de minérios transportados pelo drone. */
+    public int getMineriosTransp() {
+        return mineriosTransp;
+    }
+
+    public List<Integer> getArtefactosTransp() {
+        return this.artefactosTransp;
+    }
+
+    public void descarregarArtefactos() {
+        this.artefactosTransp.clear();
+    }
+
+    /** Esvazia o compartimento de minérios do drone após descarregar. */
+    public void descarregarMinerios() {
+        this.mineriosTransp = 0;
+    }
+
+    /** Recupera a integridade do casco e atesta o combustível ao máximo. */
+    public void repararEEvoluir() {
+        this.integridadeCasco = Constantes.max_integridade_drone;
+        this.combustivel = this.capCombustivel;
+    }
 
     /**
      * Configura a posição inicial do drone dependendo da fase de jogo.
      * @param fase Identificador da fase ("DESCIDA", "SUBIDA" ou "FUNDO").
      */
     public void prepararPosicaoInicial(String fase) {
-        this.noNavio = false; //
+        this.noNavio = false;
 
         switch (fase.toUpperCase()) {
             case "DESCIDA" -> {
@@ -106,7 +134,7 @@ public class Drone implements Serializable {
                 this.linhaPos = Constantes.COMPRIMENTO_FUNDO / 2;
                 this.linhaCol = Constantes.LARGURA_FUNDO / 2;
             }
-            default -> this.noNavio = true; //
+            default -> this.noNavio = true;
         }
     }
 }

@@ -1,8 +1,7 @@
-package pt.isec.pa.deepsea;
+package pt.isec.pa.deepsea.model.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DeepSeaAppTest {
     @Test

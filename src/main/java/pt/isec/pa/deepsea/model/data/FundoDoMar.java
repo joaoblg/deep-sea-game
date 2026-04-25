@@ -10,8 +10,7 @@ import java.util.Random;
 public class FundoDoMar implements Serializable {
     private static final long serialVersionUID = 1L;
     private int largura, altura;
-    private int[][] grelha; // 0: vazio, 1: minerio, 2: artefacto
-    private int[][] quanMinerios;
+    private ElemFundo[][] grelha;
     private boolean[][] revelada;
 
     /**
@@ -23,14 +22,14 @@ public class FundoDoMar implements Serializable {
     public FundoDoMar(int largura, int altura) {
         this.largura = largura;
         this.altura = altura;
-        this.grelha = new int[altura][largura];
-        this.quanMinerios = new int[altura][largura];
+        this.grelha = new ElemFundo[altura][largura];
         this.revelada = new boolean[altura][largura];
 
     }
 
     /**
-     * Distribui minérios na grelha inicial (usa -1 para não chocar com os IDs dos artefactos).
+     * Distribui depósitos de minério pela grelha do fundo do mar.
+     * @param numMinerios Número de depósitos a gerar.
      */
     public void gerarMinerios(int numMinerios) {
         Random rd = new Random();
@@ -40,9 +39,10 @@ public class FundoDoMar implements Serializable {
             int l = rd.nextInt(altura);
             int c = rd.nextInt(largura);
 
-            if (grelha[l][c] == 0) {
-                grelha[l][c] = -1; // -1 representa Minério!
-                quanMinerios[l][c] = rd.nextInt(10) + 1;
+            if (grelha[l][c] == null) {
+                int quanti=rd.nextInt(10)+1;
+
+                grelha[l][c]=new Minerio(quanti);
                 minColocados++;
             }
         }
@@ -68,10 +68,17 @@ public class FundoDoMar implements Serializable {
     }
 
     /**
-     * @return ID do conteúdo da célula.
+     * Devolve o objeto presente numa coordenada específica do fundo do mar.
+     * @param l Linha da grelha.
+     * @param c Coluna da grelha.
+     * @return O ElementoFundo presente ou null se a célula estiver vazia.
      */
-    public int getConteudo(int l, int c) {
-        return grelha[l][c];
+    public ElemFundo getConteudo(int l, int c) {
+
+        if (l >= 0 && l < altura && c >= 0 && c < largura) {
+            return grelha[l][c];
+        }
+        return null;
     }
 
     /**
@@ -82,14 +89,14 @@ public class FundoDoMar implements Serializable {
      */
     public void addArtefactosDefesa(int idInicial, int quantidade) {
         int colocados = 0;
-        int idAtual = idInicial; // Começa a contar a partir do ID que lhe passarmos
+        int idAtual = idInicial;
 
         for (int i = 0; i < altura && colocados < quantidade; i++) {
             for (int j = 0; j < largura && colocados < quantidade; j++) {
 
-                if (grelha[i][j] == 0) {
-                    grelha[i][j] = idAtual; // Coloca o ID único (ex: 1, 2, 3...)
-                    idAtual++; // Prepara o próximo ID
+                if (grelha[i][j] == null) {
+                    grelha[i][j] = new Artefacto(idAtual);
+                    idAtual++;
                     colocados++;
                 }
             }
@@ -109,8 +116,8 @@ public class FundoDoMar implements Serializable {
             int l = rd.nextInt(altura);
             int c = rd.nextInt(largura);
 
-            if (!revelada[l][c] && grelha[l][c] == 0) {
-                grelha[l][c] = GeradorID.gerar();
+            if (!revelada[l][c] && grelha[l][c] == null) {
+                grelha[l][c] = new Monstro();
                 colocados++;
             }
             tentativas++;
@@ -118,31 +125,46 @@ public class FundoDoMar implements Serializable {
     }
 
     /**
-     * Configura o fundo do mar para o modo defesa (todo revelado e recursos fixos).
+     * Configura o fundo do mar para o modo de apresentação.
+     * Define um cenário fixo com um monstro, minérios e utiliza o método
+     * auxiliar para colocar artefactos em posições previsíveis.
      */
     public void configurarModoDefesa() {
         for (int i = 0; i < altura; i++) {
             for (int j = 0; j < largura; j++) {
                 revelada[i][j] = true;
-                grelha[i][j] = 0;
-                quanMinerios[i][j] = 0;
+                grelha[i][j] = null;
             }
         }
 
-        // Um monstro (usando o teu GeradorID)
-        grelha[altura / 2][largura / 2] = GeradorID.gerar();
+        if (altura > 2 && largura > 2) {
+            grelha[altura / 2][largura / 2] = new Monstro();
+        }
 
-        // Minério 1: Quantidade 1 (Agora com ID -1 para não chocar com artefactos!)
-        grelha[1][1] = -1;
-        quanMinerios[1][1] = 1;
 
-        // Minério 2: Quantidade Máxima (Agora com ID -1)
-        grelha[1][2] = -1;
-        quanMinerios[1][2] = 50;
+        if (altura > 1 && largura > 2) {
+            grelha[1][1] = new Minerio(10);
+
+            grelha[1][2] = new Minerio(50);
+        }
+
+        addArtefactosDefesa(1, 3);
+
     }
 
     /**
-     * Coloca um artefacto específico com o seu ID único.
+     * Remove o conteúdo de uma célula específica (colocando a nulo).
+     * Útil para quando um artefacto é recolhido pelo drone.
+     */
+    public void removerConteudo(int l, int c) {
+        if (l >= 0 && l < altura && c >= 0 && c < largura) {
+            grelha[l][c] = null;
+        }
+    }
+
+    /**
+     * Coloca um artefacto específico na grelha, criando um novo objeto Artefacto.
+     * @param idArtefacto O ID único do artefacto (1 a 10).
      */
     public void colocarArtefacto(int idArtefacto) {
         Random rd = new Random();
@@ -151,21 +173,21 @@ public class FundoDoMar implements Serializable {
         while (!colocado) {
             int l = rd.nextInt(altura);
             int c = rd.nextInt(largura);
-            if (grelha[l][c] == 0) {
-                grelha[l][c] = idArtefacto; // Guarda o ID único (ex: 1, 2, 3...)
+            if (grelha[l][c] == null) {
+                grelha[l][c]= new Artefacto(idArtefacto);
                 colocado = true;
             }
         }
     }
 
     /**
-     * Verifica se existe pelo menos um artefacto nesta grelha.
+     * Verifica se existe pelo menos um artefacto nesta grelha do fundo do mar.
+     * @return true se encontrar um objeto da classe Artefacto.
      */
     public boolean temAlgumArtefacto() {
         for (int i = 0; i < altura; i++) {
             for (int j = 0; j < largura; j++) {
-                // Se for maior que 0 e menor/igual ao total de artefactos, é um artefacto!
-                if (grelha[i][j] > 0 && grelha[i][j] <= Constantes.NUM_ARTEFACTOS) {
+                if (grelha[i][j] instanceof Artefacto) {
                     return true;
                 }
             }

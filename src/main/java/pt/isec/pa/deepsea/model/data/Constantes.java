@@ -50,7 +50,12 @@ public interface Constantes {
     /** Numero de linhas da matriz do fundo do mar. */
     int COMPRIMENTO_FUNDO = 15;
 
-
     /** Numero de vezes que o puzzle vai ser baralhado. */
     int NUM_BARALHAR=250;
+
+    /** Ficheiro de save do jogo. */
+    public static final String FICHEIRO_SAVE = "deepsea_save.dat";
+
+    /** Ficheiro de log do jogo. */
+    public static final String FICHEIRO_LOG = "deepsea_log.txt";
 }

@@ -8,7 +8,6 @@ import java.io.Serializable;
  */
 public class CelulaSuperficie implements Serializable {
     private static final long serialVersionUID = 1L;
-    //para cada celula guardar o seu prorpio fosso e fundo do mar
     private FossoMarinho fosso;
     private FundoDoMar fundoM;
 

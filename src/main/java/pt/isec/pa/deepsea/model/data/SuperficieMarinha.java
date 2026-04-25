@@ -50,8 +50,6 @@ public class SuperficieMarinha implements Serializable {
                 mapa[i][j]= new CelulaSuperficie();
             }
         }
-
-
     }
 
     /**
@@ -60,7 +58,6 @@ public class SuperficieMarinha implements Serializable {
     public void distribuiRecursos(){
         Random rand = new Random();
 
-        // 1. Distribuir os Minérios por todas as células
         for (int i = 0; i < nLin; i++){
             for (int j = 0; j < nCol; j++){
                 int nMinerios = rand.nextInt(Constantes.MAX_MINERIOS_POR_FUNDO + 1);
@@ -68,7 +65,6 @@ public class SuperficieMarinha implements Serializable {
             }
         }
 
-        // 2. Distribuir os Artefactos com IDs únicos (1 a NUM_ARTEFACTOS)
         for (int idArtefacto = 1; idArtefacto <= Constantes.NUM_ARTEFACTOS; idArtefacto++){
             int l = rand.nextInt(nLin);
             int c = rand.nextInt(nCol);

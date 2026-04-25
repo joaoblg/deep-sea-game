@@ -3,16 +3,15 @@ package pt.isec.pa.deepsea.model.data;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DroneTeste {
+public class DroneTest {
     @Test
     public void testConsumirCombustivel() {
         Drone drone = new Drone();
-        int combustivelInicial = drone.getCombustivel(); // Deve ser 100
+        int combustivelInicial = drone.getCombustivel();
 
         drone.consumirCombustivel(20);
         assertEquals(combustivelInicial - 20, drone.getCombustivel(), "O combustível devia ter descido 20 unidades.");
 
-        // Testar o limite inferior (não pode ficar negativo)
         drone.consumirCombustivel(1000);
         assertEquals(0, drone.getCombustivel(), "O combustível não pode ser inferior a 0.");
     }

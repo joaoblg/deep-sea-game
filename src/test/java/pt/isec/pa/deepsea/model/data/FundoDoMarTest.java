@@ -3,7 +3,7 @@ package pt.isec.pa.deepsea.model.data;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FundoDoMarTeste {
+public class FundoDoMarTest {
     @Test
     public void testRevelarCelula() {
         FundoDoMar fundo = new FundoDoMar(10, 10);
@@ -19,13 +19,15 @@ public class FundoDoMarTeste {
         FundoDoMar fundo = new FundoDoMar(15, 15);
         fundo.configurarModoDefesa();
 
-        // No modo defesa, a grelha fica toda revelada
-        assertTrue(fundo.estaRevelada(0, 0), "O mapa deve ficar todo revelado no modo defesa.");
+        assertTrue(fundo.estaRevelada(0, 0), "No modo defesa atual, o mapa começa visivel.");
 
-        // Vai buscar o ID que está no centro da grelha
-        int idNoCentro = fundo.getConteudo(Constantes.COMPRIMENTO_FUNDO / 2, Constantes.LARGURA_FUNDO / 2);
+        ElemFundo conteudo = fundo.getConteudo(15 / 2, 15 / 2);
 
-        // Verifica se é um ID de monstro válido (>= 1001)
-        assertTrue(idNoCentro >= 1001, "Deve haver um monstro (ID >= 1001) no centro do mapa no Modo Defesa.");
+        assertNotNull(conteudo, "Deve haver algo no centro do mapa.");
+
+        assertTrue(conteudo instanceof Monstro, "O conteúdo no centro deve ser um Monstro.");
+
+        Monstro m = (Monstro) conteudo;
+        assertTrue(m.getId() >= 1001, "O ID do monstro deve ser >= 1001.");
     }
 }
