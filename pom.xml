@@ -44,7 +44,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>pt.isec.pa.deepsea.DeepSeeApp</mainClass>
+                    <mainClass>pt.isec.pa.deepsea.DeepSeaApp</mainClass>
                 </configuration>
             </plugin>
 

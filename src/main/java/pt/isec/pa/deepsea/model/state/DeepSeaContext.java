@@ -22,7 +22,7 @@ public class DeepSeaContext {
      */
     public DeepSeaContext() {
         this.modelo = new Jogo();
-        this.estadoAtual = DeepSeaState.SETUP.createState(this, modelo);
+        this.estadoAtual = DeepSeaState.SUPERFICIE.createState(this, modelo);
     }
 
     /**
@@ -46,8 +46,12 @@ public class DeepSeaContext {
      * @return true se a operação for permitida no estado atual, false caso contrário.
      */
     public boolean iniciarJogo() {
-        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Comando: Iniciar Jogo");
-        return estadoAtual.iniciarJogo();
+        pt.isec.pa.deepsea.model.data.DeepSeaLog log = pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance();
+        log.limparLogs();
+        log.addLog("Comando: Iniciar Jogo");
+        this.modelo = new Jogo();
+        this.estadoAtual = DeepSeaState.SUPERFICIE.createState(this, modelo);
+        return true;
     }
 
     /**
@@ -90,12 +94,57 @@ public class DeepSeaContext {
     }
 
     /**
+     * Efetua a recolha de minério e regista a operação.
+     * @return true se a recolha for efetuada, false caso contrário.
+     */
+    public boolean recolherMinerio() {
+        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Comando: Recolher Minerio");
+        return estadoAtual.recolherMinerio();
+    }
+
+    /**
      * Ordena o regresso do drone ao navio base e regista o evento.
      * @return true se a ordem de regresso for aceite, false caso contrário.
      */
     public boolean voltarAoNavio() {
         pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Comando: Voltar ao Navio");
         return estadoAtual.voltarAoNavio();
+    }
+
+    /**
+     * Entra na oficina do navio (disponível na superfície).
+     * @return true se a transição for aceite.
+     */
+    public boolean entrarOficina() {
+        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Comando: Entrar na Oficina");
+        return estadoAtual.entrarOficina();
+    }
+
+    /**
+     * Sai da oficina e regressa à superfície.
+     * @return true se a transição for aceite.
+     */
+    public boolean sairOficina() {
+        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Comando: Sair da Oficina");
+        return estadoAtual.sairOficina();
+    }
+
+    /**
+     * Repara o casco do drone na oficina.
+     * @return true se a operação for bem-sucedida.
+     */
+    public boolean melhorarCasco() {
+        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Comando: Melhorar Casco");
+        return estadoAtual.melhorarCasco();
+    }
+
+    /**
+     * Reabastece combustível do drone na oficina.
+     * @return true se a operação for bem-sucedida.
+     */
+    public boolean comprarCombustivel() {
+        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Comando: Comprar Combustivel");
+        return estadoAtual.comprarCombustivel();
     }
 
     /**
@@ -109,6 +158,50 @@ public class DeepSeaContext {
     }
 
     /**
+     * Grava o estado atual no ficheiro de save predefinido.
+     * @return true se guardado com sucesso.
+     */
+    public boolean gravarJogo() {
+        return gravarJogo(pt.isec.pa.deepsea.model.data.Constantes.FICHEIRO_SAVE);
+    }
+
+    /**
+     * Grava o estado atual do jogo no ficheiro indicado.
+     * @param ficheiro Caminho do ficheiro de destino.
+     * @return true se guardado com sucesso.
+     */
+    public boolean gravarJogo(String ficheiro) {
+        modelo.setEstadoGravado(this.getState());
+        return pt.isec.pa.deepsea.model.data.GestorFicheiros.gravarJogo(this.modelo, ficheiro);
+    }
+
+    /**
+     * Carrega o jogo a partir do ficheiro de save predefinido.
+     * @return true se carregado com sucesso.
+     */
+    public boolean carregarJogo() {
+        return carregarJogo(pt.isec.pa.deepsea.model.data.Constantes.FICHEIRO_SAVE);
+    }
+
+    /**
+     * Carrega o estado do jogo a partir do ficheiro indicado.
+     * @param ficheiro Caminho do ficheiro de origem.
+     * @return true se carregado com sucesso.
+     */
+    public boolean carregarJogo(String ficheiro) {
+        Jogo carregado = pt.isec.pa.deepsea.model.data.GestorFicheiros.carregarJogo(ficheiro);
+        if (carregado != null) {
+            this.modelo = carregado;
+            pt.isec.pa.deepsea.model.state.DeepSeaState estadoRecuperado = modelo.getEstadoGravado() != null
+                    ? modelo.getEstadoGravado()
+                    : pt.isec.pa.deepsea.model.state.DeepSeaState.SUPERFICIE;
+            this.estadoAtual = estadoRecuperado.createState(this, modelo);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Devolve o drone ativo para consulta (usado por estados e testes).
      * @return Instância do drone ativo.
      */
@@ -116,27 +209,22 @@ public class DeepSeaContext {
         if (modelo == null || modelo.getNavio() == null) return null;
         return modelo.getNavio().getDroneAtivo();
     }
-    
+
     /**
-         * Guarda o estado atual do jogo em ficheiro.
-         * @return true se gravado com sucesso.
-         */
-    public boolean gravarJogo() {
-        return pt.isec.pa.deepsea.model.data.GestorFicheiros.gravarJogo(modelo, pt.isec.pa.deepsea.model.data.Constantes.FICHEIRO_SAVE);
+     * Devolve o modelo de dados atual (necessário para a Facade gravar o jogo).
+     * @return Instância de Jogo.
+     */
+    public Jogo getModelo() {
+        return this.modelo;
     }
 
     /**
-     * Carrega um estado de jogo guardado.
-     * @return true se carregado com sucesso.
+     * Atualiza o modelo de dados e reinicia o estado (usado ao carregar um jogo).
+     * @param novoModelo Modelo restaurado de ficheiro.
      */
-    public boolean carregarJogo() {
-        pt.isec.pa.deepsea.model.Jogo carregado = pt.isec.pa.deepsea.model.data.GestorFicheiros.carregarJogo(pt.isec.pa.deepsea.model.data.Constantes.FICHEIRO_SAVE);
-        if (carregado != null) {
-            this.modelo = carregado;
-            this.estadoAtual = pt.isec.pa.deepsea.model.state.DeepSeaState.NAVIO.createState(this, modelo);
-            return true;
-        }
-        return false;
+    public void setModelo(Jogo novoModelo) {
+        this.modelo = novoModelo;
+        this.estadoAtual = DeepSeaState.SUPERFICIE.createState(this, modelo);
     }
 
     /**
@@ -186,4 +274,5 @@ public class DeepSeaContext {
     public int getMineriosNavio(){
         return modelo.getNavio().getMinerios();
     }
+
 }

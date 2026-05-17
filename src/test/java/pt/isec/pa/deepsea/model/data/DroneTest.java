@@ -3,7 +3,7 @@ package pt.isec.pa.deepsea.model.data;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DroneTest {
+public class    DroneTest {
     @Test
     public void testConsumirCombustivel() {
         Drone drone = new Drone();

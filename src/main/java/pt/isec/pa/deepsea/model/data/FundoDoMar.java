@@ -194,4 +194,56 @@ public class FundoDoMar implements Serializable {
         }
         return false;
     }
+
+    /**
+     * Repõe todas as células em escuridão (após perda do drone na subida).
+     */
+    public void resetEscuridao() {
+        for (int i = 0; i < altura; i++) {
+            for (int j = 0; j < largura; j++) {
+                revelada[i][j] = false;
+            }
+        }
+    }
+
+    /**
+     * Coloca minérios e artefactos do drone em células aleatórias do fundo.
+     * @param drone Drone que perdeu a carga.
+     */
+    public void depositarLootDoDrone(Drone drone) {
+        if (drone == null) {
+            return;
+        }
+        Random rd = new Random();
+        if (drone.getMineriosTransp() > 0) {
+            int restantes = drone.getMineriosTransp();
+            int tentativas = 0;
+            while (restantes > 0 && tentativas < 200) {
+                int l = rd.nextInt(altura);
+                int c = rd.nextInt(largura);
+                if (grelha[l][c] == null) {
+                    int q = Math.min(restantes, rd.nextInt(5) + 1);
+                    grelha[l][c] = new Minerio(q);
+                    restantes -= q;
+                }
+                tentativas++;
+            }
+        }
+        for (Integer id : new java.util.ArrayList<>(drone.getArtefactosTransp())) {
+            int tentativas = 0;
+            boolean colocado = false;
+            while (!colocado && tentativas < 100) {
+                int l = rd.nextInt(altura);
+                int c = rd.nextInt(largura);
+                if (grelha[l][c] == null) {
+                    grelha[l][c] = new Artefacto(id);
+                    colocado = true;
+                }
+                tentativas++;
+            }
+        }
+    }
+
+    public int getAltura() { return altura; }
+    public int getLargura() { return largura; }
 }

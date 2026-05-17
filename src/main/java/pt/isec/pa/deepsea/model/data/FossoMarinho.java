@@ -64,7 +64,21 @@ public class FossoMarinho implements Serializable {
      * Distribui obstáculos aleatórios (animais/correntes) com IDs sequenciais.
      * Chamado apenas quando o drone inicia a descida/subida no fosso.
      */
-public void gerarObstaculos() {
+    /**
+     * Remove animais e correntes, mantendo as rochas laterais.
+     */
+    public void limparObstaculos() {
+        for (int l = 0; l < altura; l++) {
+            for (int c = 0; c < largura; c++) {
+                if (grelha[l][c] != null && !(grelha[l][c] instanceof Rocha)) {
+                    grelha[l][c] = null;
+                }
+            }
+        }
+    }
+
+    public void gerarObstaculos() {
+        limparObstaculos();
         Random rd = new Random();
         int numObstaculos = rd.nextInt(Constantes.NUM_MAX_OBSTACULOS + 1);
         int colocados = 0;
@@ -106,4 +120,7 @@ public void gerarObstaculos() {
             grelha[5][largura / 2] = new CorrenteMarinha();
         }
     }
+
+    public int getAltura() { return altura; }
+    public int getLargura() { return largura; }
 }

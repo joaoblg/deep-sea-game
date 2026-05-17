@@ -19,10 +19,9 @@ public class DeepSeaManagerTest {
 
     @Test
     public void testFluxoInicialEMergulho() {
-        assertEquals(DeepSeaState.SETUP, manager.getState());
 
         manager.iniciarJogo();
-        assertEquals(DeepSeaState.NAVIO, manager.getState());
+        assertEquals(DeepSeaState.SUPERFICIE, manager.getState());
 
         boolean sucessoMergulho = manager.iniciarMergulho(5, 5);
         assertTrue(sucessoMergulho);

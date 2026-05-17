@@ -15,7 +15,8 @@ public class CorrenteMarinha extends ObstaculoFosso{
      * @param droneAtual O drone afetado pela corrente.
      */
     @Override
-    public void interage(Drone droneAtual){
+    public void interage(Drone droneAtual) {
+        // Movimento normal já gastou 1; corrente exige o dobro do deslocamento.
         droneAtual.consumirCombustivel(1);
     }
 }

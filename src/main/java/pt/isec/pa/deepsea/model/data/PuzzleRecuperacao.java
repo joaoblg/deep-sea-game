@@ -177,4 +177,8 @@ public class PuzzleRecuperacao implements Serializable {
     public int getMovimentos() {
         return movimentos;
     }
+    
+    public int[][] getGrelha() {
+        return grelha;
+    }
 }

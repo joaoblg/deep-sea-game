@@ -37,3 +37,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+.class
+
+### Ficheiros locais do jogo ###
+deepsea_save.dat
+deepsea_log.txt

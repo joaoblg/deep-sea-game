@@ -51,4 +51,14 @@ public interface IDeepSeaState {
      * @return Valor do estado.
      */
     DeepSeaState getState();
+
+    boolean recolherMinerio();
+
+    boolean entrarOficina();
+
+    boolean sairOficina();
+
+    boolean melhorarCasco();
+
+    boolean comprarCombustivel();
 }

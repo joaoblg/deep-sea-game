@@ -25,10 +25,13 @@ public abstract class DeepSeaStateAdapter implements IDeepSeaState {
      * Pede ao contexto para trocar o estado ativo.
      * @param newState Novo estado.
      */
-    protected void changeState(IDeepSeaState newState) {
-        context.changeState(newState);
+    protected void changeState(DeepSeaState newState) {
+        context.changeState(newState.createState(context, modelo));
     }
-
+    @Override
+    public boolean recolherMinerio() {
+        return false;
+    }
     @Override public boolean iniciarJogo() { return false; }
     @Override public boolean evoluirDrone() { return false; }
     @Override public boolean iniciarMergulho(int linha, int coluna) { return false; }
@@ -36,4 +39,8 @@ public abstract class DeepSeaStateAdapter implements IDeepSeaState {
     @Override public boolean avaliarFundo() { return false; }
     @Override public boolean voltarAoNavio() { return false; }
     @Override public boolean jogarPuzzle(Direcoes direcao) { return false; }
+    @Override public boolean entrarOficina() { return false; }
+    @Override public boolean sairOficina() { return false; }
+    @Override public boolean melhorarCasco() { return false; }
+    @Override public boolean comprarCombustivel() { return false; }
 }

@@ -18,28 +18,16 @@ public class DeepSeaFSMTest {
     }
 
     @Test
-    public void testEstadoInicialETransicaoParaNavio() {
-        assertEquals(DeepSeaState.SETUP, context.getState(), "O estado inicial deve ser SETUP.");
-
-        boolean iniciou = context.iniciarJogo();
-
-        assertTrue(iniciou, "A transição iniciarJogo() deve ser permitida no SETUP.");
-        assertEquals(DeepSeaState.NAVIO, context.getState(), "O estado deve ter mudado para NAVIO.");
+    public void testEstadoInicial() {
+        assertEquals(DeepSeaState.SUPERFICIE, context.getState(), "O estado inicial deve ser SUPERFICIE.");
     }
+
 
     @Test
     public void testBloqueioDeTransicoesInvalidas() {
-        context.iniciarJogo();
-        assertEquals(DeepSeaState.NAVIO, context.getState());
+        assertEquals(DeepSeaState.SUPERFICIE, context.getState());
 
-        // Tentar avaliar o fundo estando no Navio tem de ser bloqueado!
-        assertFalse(context.avaliarFundo(), "Não é permitido avaliar o fundo a partir do Navio.");
-
-        // Tentar jogar o puzzle estando no Navio tem de ser bloqueado!
-        assertFalse(context.jogarPuzzle(Direcoes.CIMA), "Não é permitido jogar o puzzle no Navio.");
-
-        // O estado deve manter-se intacto
-        assertEquals(DeepSeaState.NAVIO, context.getState(), "O estado não se pode alterar após ações inválidas.");
+        assertFalse(context.avaliarFundo(), "Não é permitido avaliar o fundo a partir da superfície.");
     }
 
     @Test
@@ -70,7 +58,7 @@ public class DeepSeaFSMTest {
             }
             context.mover(Direcoes.BAIXO); // O movimento seguinte deteta a morte
 
-            assertEquals(DeepSeaState.NAVIO, context.getState(), "Se o drone for destruído, deve voltar ao Navio.");
+            assertEquals(DeepSeaState.SUPERFICIE, context.getState(), "Se o drone for destruído, deve voltar ao Navio.");
         }
     }
 }

@@ -16,6 +16,7 @@ public class Navio implements Serializable {
     private int minerios;
     private List<Artefacto> artefactosRecolhidos;
     private Set<Drone> drones;
+    private Drone droneSelecionado;
     private int linhaPos;
     private int colunaPos;
     private SuperficieMarinha superficie;
@@ -29,7 +30,6 @@ public class Navio implements Serializable {
         this.minerios = 0;
         this.artefactosRecolhidos = new ArrayList<>();
         this.drones = new HashSet<>();
-        this.superficie = new SuperficieMarinha();
     }
 
     /**
@@ -47,6 +47,7 @@ public class Navio implements Serializable {
     public void adicionarMinerios(int quantidade) {
         this.minerios += quantidade;
     }
+    
 
     public SuperficieMarinha getSuperficie() {
         return this.superficie;
@@ -70,6 +71,52 @@ public class Navio implements Serializable {
      */
     public void addDrone(Drone drone) {
         this.drones.add(drone);
+        if (droneSelecionado == null) {
+            droneSelecionado = drone;
+        }
+    }
+
+    /**
+     * Define o drone selecionado para operações na oficina e rampa de lançamento.
+     * @param drone Drone da frota.
+     * @return true se o drone pertencer à frota.
+     */
+    public boolean selecionarDrone(Drone drone) {
+        if (drone == null || !drones.contains(drone)) {
+            return false;
+        }
+        this.droneSelecionado = drone;
+        return true;
+    }
+
+    /**
+     * Seleciona um drone pelo índice (1 = primeiro na lista ordenada por casco).
+     * @param indice Posição na lista (base 1).
+     * @return true se o índice for válido.
+     */
+    public boolean selecionarDronePorIndice(int indice) {
+        List<Drone> lista = getDronesOrdenadosPorCasco();
+        if (indice < 1 || indice > lista.size()) {
+            return false;
+        }
+        return selecionarDrone(lista.get(indice - 1));
+    }
+
+    /**
+     * @return Índice (base 1) do drone selecionado na lista ordenada por casco, ou 0 se nenhum.
+     */
+    public int getIndiceDroneSelecionado() {
+        List<Drone> lista = getDronesOrdenadosPorCasco();
+        Drone ativo = getDroneAtivo();
+        if (ativo == null) {
+            return 0;
+        }
+        for (int i = 0; i < lista.size(); i++) {
+            if (lista.get(i) == ativo) {
+                return i + 1;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -146,20 +193,86 @@ public class Navio implements Serializable {
 
     public void recolherArtefactosDoDrone(Drone drone) {
         for (Integer id : drone.getArtefactosTransp()) {
-            this.artefactosRecolhidos.add(new Artefacto(id));
+            boolean jaExiste = false;
+            for (Artefacto art : artefactosRecolhidos) {
+                if (art.getIdArtefacto() == id) {
+                    jaExiste = true;
+                    break;
+                }
+            }
+            if (!jaExiste) {
+                artefactosRecolhidos.add(new Artefacto(id));
+            }
+        }
+    }
+
+    /**
+     * @return Número de artefactos distintos recolhidos pelo navio.
+     */
+    public int contagemArtefactosUnicos() {
+        return artefactosRecolhidos.size();
+    }
+
+    /**
+     * Transfere combustível do navio para o drone.
+     * @param drone Drone a abastecer.
+     * @param quantidade Unidades a transferir.
+     * @return true se a transferência for possível.
+     */
+    public boolean transferirCombustivelParaDrone(Drone drone, int quantidade) {
+        if (drone == null || quantidade <= 0) {
+            return false;
+        }
+        if (combustivel < quantidade) {
+            return false;
+        }
+        combustivel -= quantidade;
+        drone.adicionarCombustivel(quantidade);
+        return true;
+    }
+
+
+    /**
+     * Devolve o drone selecionado para operações; se inválido, escolhe o primeiro disponível.
+     * @return O drone ativo ou null se não houver drones.
+     */
+    public Drone getDroneAtivo() {
+        if (drones == null || drones.isEmpty()) {
+            droneSelecionado = null;
+            return null;
+        }
+        if (droneSelecionado != null && drones.contains(droneSelecionado)) {
+            return droneSelecionado;
+        }
+        droneSelecionado = getDronesOrdenadosPorCasco().get(0);
+        return droneSelecionado;
+    }
+
+    /**
+     * Remove um drone da frota e atualiza a seleção.
+     * @param drone Drone a remover.
+     */
+    public void removerDrone(Drone drone) {
+        drones.remove(drone);
+        if (droneSelecionado == drone) {
+            droneSelecionado = null;
         }
     }
 
 
     /**
-     * Devolve o drone que está atualmente em operação.
-     * Como o drones é um Set, vamos buscar o primeiro elemento disponível.
-     * @return O drone ativo ou null se não houver drones.
+     * Gasta combustível do navio.
+     * @param quantidade Unidades de combustivel a gastar.
+     * @return true se tiver combustível suficiente e gastar, false caso contrário.
      */
-    public Drone getDroneAtivo() {
-        if (drones == null || drones.isEmpty()) {
-            return null;
+    public boolean gastarCombustivel(int quantidade) {
+        if (this.combustivel >= quantidade) {
+            this.combustivel -= quantidade;
+            return true;
+        }else{
+            this.combustivel=0;
+            return false;
+
         }
-        return drones.iterator().next();
     }
 }

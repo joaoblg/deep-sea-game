@@ -1,13 +1,14 @@
 package pt.isec.pa.deepsea.model.state;
 
 import pt.isec.pa.deepsea.model.Jogo;
+import pt.isec.pa.deepsea.model.state.states.*;
 
 /**
  * Enumeração dos estados lógicos do jogo.
  * Implementa o factory method para criação dos estados concretos.
  */
 public enum DeepSeaState {
-    SETUP, NAVIO, DESCIDA, FUNDO_MAR, SUBIDA, PUZZLE, FIM_JOGO;
+    OFICINA, SUPERFICIE, DESCIDA, FUNDO_MAR, SUBIDA, PUZZLE, FIM_JOGO;
 
     /**
      * Cria a instância concreta correspondente ao estado.
@@ -17,8 +18,8 @@ public enum DeepSeaState {
      */
     public IDeepSeaState createState(DeepSeaContext context, Jogo modelo) {
         return switch (this) {
-            case SETUP -> new EstadoSetup(context, modelo);
-            case NAVIO -> new EstadoNavio(context, modelo);
+            case OFICINA -> new EstadoOficina(context, modelo);
+            case SUPERFICIE -> new EstadoSuperficie(context, modelo);
             case DESCIDA -> new EstadoDescida(context, modelo);
             case FUNDO_MAR -> new EstadoFundoMar(context, modelo);
             case SUBIDA -> new EstadoSubida(context, modelo);
@@ -26,4 +27,5 @@ public enum DeepSeaState {
             case FIM_JOGO -> new EstadoFimJogo(context, modelo);
         };
     }
+
 }

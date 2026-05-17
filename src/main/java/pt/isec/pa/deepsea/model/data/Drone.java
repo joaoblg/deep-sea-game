@@ -13,6 +13,7 @@ public class Drone implements Serializable {
     private int combustivel;
     private int capCombustivel;
     private int integridadeCasco;
+    private int maxIntegridadeCasco;
     private int indiceDanoPrimo;
     private boolean noNavio;
     private int linhaPos;
@@ -27,6 +28,7 @@ public class Drone implements Serializable {
         this.capCombustivel = Constantes.combust_ini_drone;
         this.combustivel = this.capCombustivel;
         this.integridadeCasco = Constantes.max_integridade_drone;
+        this.maxIntegridadeCasco = Constantes.max_integridade_drone;
         this.noNavio = true;
         this.mineriosTransp = 0;
         this.artefactosTransp = new ArrayList<>();
@@ -106,10 +108,65 @@ public class Drone implements Serializable {
         this.mineriosTransp = 0;
     }
 
-    /** Recupera a integridade do casco e atesta o combustível ao máximo. */
-    public void repararEEvoluir() {
-        this.integridadeCasco = Constantes.max_integridade_drone;
-        this.combustivel = this.capCombustivel;
+    /**
+     * Repara o casco do drone numa determinada quantidade.
+     * Garante que a integridade não ultrapassa o limite máximo.
+     */
+    public void repararCasco(int ganho) {
+        this.integridadeCasco += ganho;
+
+        // Verifica se ultrapassou o limite máximo
+        if (this.integridadeCasco > maxIntegridadeCasco) {
+            this.integridadeCasco = maxIntegridadeCasco;
+        }
+    }
+
+    /** @return Integridade máxima do casco (blindagem). */
+    public int getMaxIntegridadeCasco() {
+        return maxIntegridadeCasco;
+    }
+
+    /** @return Capacidade máxima do tanque de combustível. */
+    public int getCapCombustivel() {
+        return capCombustivel;
+    }
+
+    /**
+     * Melhoria na oficina: aumenta a capacidade do tanque.
+     */
+    public void evoluirCapacidadeTanque(int ganho) {
+        this.capCombustivel += ganho;
+    }
+
+    /**
+     * Melhoria na oficina: reforça a blindagem máxima e repara o casco.
+     */
+    public void evoluirBlindagem(int ganhoMax) {
+        this.maxIntegridadeCasco += ganhoMax;
+        this.integridadeCasco = Math.min(integridadeCasco + ganhoMax, maxIntegridadeCasco);
+    }
+
+    /**
+     * Adiciona combustível ao drone numa determinada quantidade.
+     * Garante que o combustível não ultrapassa a capacidade máxima do depósito.
+     */
+    public void adicionarCombustivel(int ganho) {
+        this.combustivel += ganho;
+
+        // Verifica se ultrapassou o limite máximo do depósito
+        if (this.combustivel > this.capCombustivel) {
+            this.combustivel = this.capCombustivel;
+        }
+    }
+
+    public void gastarMinerios(int quant) {
+        if (this.mineriosTransp >= quant) {
+            this.mineriosTransp -= quant;
+        }
+    }
+
+    public int getMinerios() {
+        return this.mineriosTransp;
     }
 
     /**

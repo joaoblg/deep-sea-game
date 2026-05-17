@@ -1,139 +1,365 @@
 package pt.isec.pa.deepsea.model;
 
-import pt.isec.pa.deepsea.model.data.Direcoes;
 import pt.isec.pa.deepsea.model.state.DeepSeaContext;
 import pt.isec.pa.deepsea.model.state.DeepSeaState;
+import pt.isec.pa.deepsea.model.data.Direcoes;
+import pt.isec.pa.deepsea.model.data.Drone;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Classe que atua como a Facade global do modelo de dados do jogo.
- * Coordena o acesso à máquina de estados (FSM) e garante uma API estável para a UI.
+ * Facade do modelo de dados do jogo Deep Sea Mining.
+ * Expõe as operações do jogo à camada de UI e notifica alterações via {@link PropertyChangeSupport}.
  */
 public class DeepSeaManager {
-    private final DeepSeaContext jogo;
+    private DeepSeaContext context;
+    private PropertyChangeSupport pcs;
 
+    /** Propriedade notificada quando o estado lógico do jogo muda. */
+    public static final String PROP_ESTADO = "estado";
+    /** Propriedade notificada quando dados do modelo (posições, inventário, etc.) mudam. */
+    public static final String PROP_DADOS = "dados";
+    /** Propriedade notificada quando o histórico de logs é alterado. */
+    public static final String PROP_LOG = "log";
 
     /**
-     * inicializa o manager
+     * Cria um novo gestor com contexto de jogo inicial.
      */
-    public DeepSeaManager(){
-        this.jogo=new DeepSeaContext();
+    public DeepSeaManager() {
+        this.context = new DeepSeaContext();
+        this.pcs = new PropertyChangeSupport(this);
     }
 
-
-    /**
-     * Obtém o estado atual da máquina de estados.
-     * @return Estado lógico atual do jogo.
-     */
-    public DeepSeaState getState(){
-        return jogo.getState();
+    public void addPropertyChangeListener(String property, PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(property, listener);
     }
 
-    /**
-     * Tenta iniciar uma nova partida.
-     * @return true quando a transição é válida e executada.
-     */
-    public boolean iniciarJogo(){
-        return jogo.iniciarJogo();
+    public DeepSeaState getState() {
+        return context.getState();
     }
 
-
-    /**
-     * Tenta executar um movimento de acordo com o estado atual.
-     * @param direcao Direção pretendida.
-     * @return true quando o movimento é aceite.
-     */
-    public boolean mover(Direcoes direcao){
-        return jogo.mover(direcao);
+    private void notificarLog() {
+        pcs.firePropertyChange(PROP_LOG, null, null);
     }
 
-
-    /**
-     * Obtém a quantidade atual de combustível do navio.
-     * @return Valor inteiro do combustível disponível.
-     */
-    public int getCombustivel() { return jogo.getCombustivelNavio(); }
-
-    /**
-     * Obtém a quantidade total de minérios armazenados no navio.
-     * @return Valor inteiro dos minérios recolhidos.
-     */
-    public int getMinerios() { return jogo.getMineriosNavio(); }
-
-    /**
-     * Obtém a coordenada da linha atual do navio à superfície.
-     * @return Índice da linha.
-     */
-    public int getLinhaNavio() { return jogo.getLinhaNavio(); }
-
-    /**
-     * Obtém a coordenada da coluna atual do navio à superfície.
-     * @return Índice da coluna.
-     */
-    public int getColunaNavio() { return jogo.getColunaNavio(); }
-
-    /**
-     * Tenta evoluir o drone na oficina
-     * @return true se conseguir evoluir
-     */
-    public boolean evoluirDrone(){
-        return jogo.evoluirDrone();
+    private void notificarDados() {
+        pcs.firePropertyChange(PROP_DADOS, null, null);
     }
 
-
-    /**
-     *inicia o mergulho nas coordenadas fornecidas
-     * @param lin - linha da grelha
-     * @param col - coluna da grelha
-     * @return true se conseguir inciar a descida
-     */
-    public boolean iniciarMergulho(int lin, int col){
-        return jogo.iniciarMergulho(lin,col);
+    private void notificarEstado() {
+        pcs.firePropertyChange(PROP_ESTADO, null, getState());
     }
 
-
-    /**
-     * avalia o fundo do mar na posição atual em que o drone está
-     * @return true se for feito a avaliação
-     */
-    public boolean avaliarFUndo(){
-        return jogo.avaliarFundo();
+    /** Notifica estado, dados e logs após um comando do jogo. */
+    private void notificarComando() {
+        notificarEstado();
+        notificarDados();
+        notificarLog();
     }
 
+    public boolean iniciarJogo() {
+        boolean result = context.iniciarJogo();
+        notificarComando();
+        return result;
+    }
 
-    /**
-     * inicia a subida do drone de volta ao navio
-     * @return true se conseguir subir
-     */
-    public boolean voltarNavio(){
-        return jogo.voltarAoNavio();
+    public boolean evoluirDrone() {
+        boolean result = context.evoluirDrone();
+        notificarComando();
+        return result;
     }
 
     /**
-     * Executa um movimento no minijogo de puzzle.
-     * @param direcao Direção para onde deslizar a peça (ou o espaço vazio).
-     * @return true se a peça foi movida.
+     * Seleciona o drone ativo na oficina ou na superfície (índice 1..n).
+     * @param indice Posição na frota (base 1).
+     * @return true se a seleção for válida no estado atual.
      */
-    public boolean jogarPuzzle(Direcoes direcao){
-        return jogo.jogarPuzzle(direcao);
-
+    public boolean selecionarDrone(int indice) {
+        DeepSeaState estado = getState();
+        if (estado != DeepSeaState.SUPERFICIE && estado != DeepSeaState.OFICINA) {
+            return false;
+        }
+        boolean result = context.getModelo().getNavio().selecionarDronePorIndice(indice);
+        if (result) {
+            notificarDados();
+        }
+        return result;
     }
 
     /**
-     * Guarda o estado atual do jogo no ficheiro de persistência.
-     * @return true se a gravação for concluída com sucesso.
+     * @return Índice (base 1) do drone atualmente selecionado.
      */
+    public int getIndiceDroneSelecionado() {
+        return context.getModelo().getNavio().getIndiceDroneSelecionado();
+    }
+
+    /**
+     * @return Número de drones disponíveis na frota.
+     */
+    public int getNumDrones() {
+        return context.getModelo().getNavio().getDrones().size();
+    }
+
+    public boolean iniciarMergulho(int linha, int coluna) {
+        boolean result = context.iniciarMergulho(linha, coluna);
+        notificarComando();
+        return result;
+    }
+
+    public boolean mover(Direcoes direcao) {
+        boolean result = context.mover(direcao);
+        notificarComando();
+        return result;
+    }
+
+    public boolean avaliarFundo() {
+        boolean result = context.avaliarFundo();
+        notificarComando();
+        return result;
+    }
+
+    public boolean recolherMinerio() {
+        boolean result = context.recolherMinerio();
+        notificarComando();
+        return result;
+    }
+
+    public boolean voltarAoNavio() {
+        boolean result = context.voltarAoNavio();
+        notificarComando();
+        return result;
+    }
+
+    /**
+     * Entra na oficina do navio.
+     * @return true se a transição for aceite.
+     */
+    public boolean entrarOficina() {
+        boolean result = context.entrarOficina();
+        notificarComando();
+        return result;
+    }
+
+    /**
+     * Sai da oficina.
+     * @return true se a transição for aceite.
+     */
+    public boolean sairOficina() {
+        boolean result = context.sairOficina();
+        notificarComando();
+        return result;
+    }
+
+    /**
+     * Repara o casco do drone ativo na oficina.
+     * @return true se a reparação for efetuada.
+     */
+    public boolean melhorarCasco() {
+        boolean result = context.melhorarCasco();
+        notificarDados();
+        notificarLog();
+        return result;
+    }
+
+    /**
+     * Compra combustível para o drone ativo na oficina.
+     * @return true se a compra for efetuada.
+     */
+    public boolean comprarCombustivel() {
+        boolean result = context.comprarCombustivel();
+        notificarDados();
+        notificarLog();
+        return result;
+    }
+
+    public boolean jogarPuzzle(Direcoes direcao) {
+        boolean result = context.jogarPuzzle(direcao);
+        notificarComando();
+        return result;
+    }
+
     public boolean gravarJogo() {
-        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Jogo gravado manualmente.");
-        return jogo.gravarJogo();
+        boolean result = context.gravarJogo();
+        notificarLog();
+        return result;
     }
 
     /**
-     * Carrega um jogo previamente gravado.
-     * @return true se o carregamento for concluído com sucesso.
+     * Grava o jogo no ficheiro indicado.
+     * @param ficheiro Caminho do ficheiro de destino.
+     * @return true se a gravação for bem-sucedida.
      */
+    public boolean gravarJogo(String ficheiro) {
+        boolean result = context.gravarJogo(ficheiro);
+        notificarLog();
+        return result;
+    }
+
     public boolean carregarJogo() {
-        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().addLog("Jogo carregado a partir de ficheiro.");
-        return jogo.carregarJogo();
+        boolean result = context.carregarJogo();
+        notificarComando();
+        return result;
+    }
+
+    /**
+     * Restaura o jogo a partir do ficheiro indicado.
+     * @param ficheiro Caminho do ficheiro de origem.
+     * @return true se o carregamento for bem-sucedido.
+     */
+    public boolean carregarJogo(String ficheiro) {
+        boolean result = context.carregarJogo(ficheiro);
+        notificarComando();
+        return result;
+    }
+
+    /**
+     * Obtém uma cópia dos logs em memória.
+     * @return Lista de entradas de log.
+     */
+    public List<String> getLogs() {
+        return pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().getLogs();
+    }
+
+    /**
+     * Remove todas as entradas de log em memória.
+     */
+    public void limparLogs() {
+        pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().limparLogs();
+        pcs.firePropertyChange(PROP_LOG, null, null);
+    }
+
+    public Drone getDrone() {
+        return context.getDrone();
+    }
+
+    public int getCombustivelNavio() {
+        return context.getCombustivelNavio();
+    }
+
+    public int getLinhaNavio() {
+        return context.getLinhaNavio();
+    }
+
+    public int getColunaNavio() {
+        return context.getColunaNavio();
+    }
+
+    public int getMineriosNavio() {
+        return context.getMineriosNavio();
+    }
+
+    public int getLinhasSuperficie() {
+        return context.getModelo().getSuperficie().getLinhas();
+    }
+
+    public int getColunasSuperficie() {
+        return context.getModelo().getSuperficie().getColunas();
+    }
+
+    /**
+     * Exporta o histórico de logs do jogo para um ficheiro de texto.
+     * Resolve a violação arquitetural de fazer I/O diretamente na View.
+     * @param nomeFicheiro O nome do ficheiro de destino.
+     * @return true se exportado com sucesso, false caso ocorra um erro.
+     */
+    public boolean exportarLogs(String nomeFicheiro) {
+        try (java.io.FileWriter writer = new java.io.FileWriter(nomeFicheiro)) {
+            for (String log : pt.isec.pa.deepsea.model.data.DeepSeaLog.getInstance().getLogs()) {
+                writer.write(log + "\n");
+            }
+            notificarLog();
+            return true;
+        } catch (java.io.IOException e) {
+            return false;
+        }
+    }
+
+    public boolean contemArtefactoNaSuperficie(int lin, int col) {
+        return context.getModelo().getSuperficie().contemArtefacto(lin, col);
+    }
+
+    /**
+     * @param lin Linha da grelha do puzzle.
+     * @param col Coluna da grelha do puzzle.
+     * @return Valor da peça (0 representa o espaço vazio).
+     */
+    public int getPecaPuzzle(int lin, int col) {
+        var puzzle = context.getModelo().getPuzzleAtual();
+        if (puzzle == null) {
+            return 0;
+        }
+        return puzzle.getGrelha()[lin][col];
+    }
+
+    /**
+     * @return Número de artefactos recolhidos pelo navio.
+     */
+    public int getArtefactosNavio() {
+        return context.getModelo().getNavio().getArtefactos().size();
+    }
+
+    /** @return Altura da grelha do fosso ativo. */
+    public int getLinhasFosso() {
+        return context.getModelo().getFosso().getAltura();
+    }
+
+    /** @return Largura da grelha do fosso ativo. */
+    public int getColunasFosso() {
+        return context.getModelo().getFosso().getLargura();
+    }
+
+    /**
+     * @param l Linha.
+     * @param c Coluna.
+     * @return Elemento presente no fosso ou {@code null}.
+     */
+    public Object getElemFosso(int l, int c) {
+        return context.getModelo().getFosso().getCont(l, c);
+    }
+
+    /** @return Altura da grelha do fundo do mar ativo. */
+    public int getLinhasFundo() {
+        return context.getModelo().getFundo().getAltura();
+    }
+
+    /** @return Largura da grelha do fundo do mar ativo. */
+    public int getColunasFundo() {
+        return context.getModelo().getFundo().getLargura();
+    }
+
+    /**
+     * @param l Linha.
+     * @param c Coluna.
+     * @return Conteúdo da célula do fundo ou {@code null}.
+     */
+    public Object getElemFundo(int l, int c) {
+        return context.getModelo().getFundo().getConteudo(l, c);
+    }
+
+    /**
+     * @param l Linha.
+     * @param c Coluna.
+     * @return true se a célula do fundo estiver revelada.
+     */
+    public boolean isFundoRevelado(int l, int c) {
+        return context.getModelo().getFundo().estaRevelada(l, c);
+    }
+
+    /**
+     * @return Linhas de texto com o estado de cada drone da frota.
+     */
+    public List<String> getResumoFrotaDrones() {
+        List<String> resumo = new ArrayList<>();
+        for (Drone drone : context.getModelo().getNavio().getDronesOrdenadosPorCasco()) {
+            resumo.add(String.format(
+                    "Comb.%d | Casco %d%% | Min.%d",
+                    drone.getCombustivel(),
+                    drone.getIntegridadeCasco(),
+                    drone.getMineriosTransp()));
+        }
+        return resumo;
     }
 }

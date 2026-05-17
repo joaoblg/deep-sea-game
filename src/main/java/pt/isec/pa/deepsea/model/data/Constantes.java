@@ -58,4 +58,25 @@ public interface Constantes {
 
     /** Ficheiro de log do jogo. */
     public static final String FICHEIRO_LOG = "deepsea_log.txt";
+
+    /** Combustivel que o navio gasta por movimento. */
+    int COMBUPERMOVE = 15;
+
+    /** Combustivel do navio gasto por reparacao de casco na oficina. */
+    int CUSTO_COMBUSTIVEL_REPARACAO = 25;
+
+    /** Combustivel do navio transferido para o drone na oficina. */
+    int COMBUSTIVEL_TRANSFERENCIA_DRONE = 15;
+
+    /** Minerios do navio para evoluir o drone na oficina. */
+    int CUSTO_MINERIOS_EVOLUIR = 3;
+
+    /** Combustivel extra ao recolher minério no fundo (para além do movimento). */
+    int COMBUSTIVEL_EXTRA_RECOLHER_MINERIO = 1;
+
+    /** Ganho de capacidade do tanque na evolução. */
+    int GANHO_CAPACIDADE_TANQUE = 25;
+
+    /** Ganho de blindagem máxima na evolução. */
+    int GANHO_BLINDAGEM_MAXIMA = 15;
 }

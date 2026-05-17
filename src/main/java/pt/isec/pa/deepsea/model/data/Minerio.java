@@ -32,8 +32,7 @@ public class Minerio extends ElemFundo{
      */
     @Override
     public void interage(Drone droneAtual) {
-        droneAtual.adicionarMinerios(this.quantidade);
-        this.quantidade = 0;
+        // Recolha manual com tecla R em EstadoFundoMar.
     }
 
 
