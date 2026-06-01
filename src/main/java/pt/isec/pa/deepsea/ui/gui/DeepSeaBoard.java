@@ -61,12 +61,26 @@ public class DeepSeaBoard extends StackPane {
         configurarCamada(fimJogoView, false);
 
         switch (estado) {
-            case SUPERFICIE -> configurarCamada(superficieView, true);
-            case FOSSO, DESCIDA, SUBIDA -> configurarCamada(descidaView, true);
-            case FUNDO_MAR -> configurarCamada(fundoMarView, true);
-            case PUZZLE -> configurarCamada(puzzleView, true);
-            case OFICINA -> configurarCamada(oficinaView, true);
-            case FIM_JOGO -> configurarCamada(fimJogoView, true);
+            case SUPERFICIE:
+                configurarCamada(superficieView, true);
+                break;
+            case FOSSO:
+            case DESCIDA:
+            case SUBIDA:
+                configurarCamada(descidaView, true);
+                break;
+            case FUNDO_MAR:
+                configurarCamada(fundoMarView, true);
+                break;
+            case PUZZLE:
+                configurarCamada(puzzleView, true);
+                break;
+            case OFICINA:
+                configurarCamada(oficinaView, true);
+                break;
+            case FIM_JOGO:
+                configurarCamada(fimJogoView, true);
+                break;
         }
     }
 
