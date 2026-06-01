@@ -1,10 +1,12 @@
 package pt.isec.pa.deepsea.model.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import pt.isec.pa.deepsea.model.data.Direcoes;
-import pt.isec.pa.deepsea.model.data.Drone;
+
 import pt.isec.pa.deepsea.model.state.DeepSeaContext;
 import pt.isec.pa.deepsea.model.state.DeepSeaState;
 
@@ -14,7 +16,7 @@ public class DeepSeaFSMTest {
 
     @BeforeEach
     public void setUp() {
-        context = new DeepSeaContext();
+        context = DeepSeaContext.createContext();
     }
 
     @Test
@@ -45,7 +47,7 @@ public class DeepSeaFSMTest {
         boolean mergulhou = context.iniciarMergulho(0, 0);
 
         if (mergulhou) {
-            assertEquals(DeepSeaState.DESCIDA, context.getState());
+            assertEquals(DeepSeaState.FOSSO, context.getState());
 
             // Simular movimento gasta combustível
             int combustivelAntes = droneTeste.getCombustivel();

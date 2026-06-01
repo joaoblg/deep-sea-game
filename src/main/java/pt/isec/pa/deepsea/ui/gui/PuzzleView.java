@@ -1,7 +1,6 @@
 package pt.isec.pa.deepsea.ui.gui;
 
 import javafx.application.Platform;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -9,20 +8,30 @@ import pt.isec.pa.deepsea.model.DeepSeaManager;
 import pt.isec.pa.deepsea.model.data.Direcoes;
 
 /**
- * Vista Canvas do minijogo de puzzle (estado {@link pt.isec.pa.deepsea.model.state.DeepSeaState#PUZZLE}).
+ * Vista Canvas do minijogo de puzzle (estado PUZZLE).
  */
-public class PuzzleView extends Canvas {
-    private DeepSeaManager manager;
+public class PuzzleView extends CanvasPane {
+    private final DeepSeaManager manager;
 
     /**
-     * @param manager Facade do modelo.
+     * @param manager Facade do modelo
      */
     public PuzzleView(DeepSeaManager manager) {
         this.manager = manager;
-        this.widthProperty().addListener(e -> desenhar());
-        this.heightProperty().addListener(e -> desenhar());
+        createViews();
+        registerHandlers();
+        update();
+    }
+
+    private void createViews() {
+        // Canvas criado em CanvasPane
+    }
+
+    private void registerHandlers() {
+        widthProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(this::update));
+        heightProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(this::update));
         manager.addPropertyChangeListener(DeepSeaManager.PROP_DADOS, evt ->
-                Platform.runLater(this::desenhar));
+                Platform.runLater(this::update));
 
         this.setOnMouseClicked(event -> {
             int tamanho = 4;
@@ -58,11 +67,17 @@ public class PuzzleView extends Canvas {
         });
     }
 
-    /** Redesenha a grelha do puzzle deslizante. */
-    public void desenhar() {
+    private void update() {
         GraphicsContext gc = getGraphicsContext2D();
+        if (gc == null) {
+            return;
+        }
+
         double w = getWidth();
         double h = getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
 
         gc.clearRect(0, 0, w, h);
         gc.setFill(Color.DARKSLATEGRAY);
@@ -80,7 +95,7 @@ public class PuzzleView extends Canvas {
 
         for (int i = 0; i < tamanho; i++) {
             for (int j = 0; j < tamanho; j++) {
-                int peca = manager.getPecaPuzzle(i, j); 
+                int peca = manager.getPecaPuzzle(i, j);
                 double x = offsetX + j * cellW;
                 double y = offsetY + i * cellH;
 

@@ -6,16 +6,16 @@ package pt.isec.pa.deepsea.model.data;
 public interface Constantes {
     
     /** Ativa o modo de apresentacao com regras simplificadas de mapa. */
-    boolean modo_defesa = false;
+    boolean MODO_DEFESA = false;
 
     /** Quantidade inicial de combustivel do navio. */
-    int combust_ini_navio = 10000;
+    int COMBUSTIVEL_INI_NAVIO = 10000;
     
     /** Quantidade inicial e capacidade do tanque de combustivel do drone. */
-    int combust_ini_drone = 100;
+    int COMBUSTIVEL_INI_DRONE = 100;
     
     /** Valor inicial da integridade do casco do drone. */
-    int max_integridade_drone = 100;
+    int MAX_INTEGRIDADE_DRONE = 100;
     
     /** Limite de monstros gerados por celula de fundo do mar. */
     int NUM_MAX_MONSTROS = 5;
@@ -33,10 +33,10 @@ public interface Constantes {
     int NUM_MAX_OBSTACULOS = 5;
 
     /** Numero de linhas da matriz da superficie. */
-    int LARGURA_SUPERFICIE = 30;
+    int LARGURA_SUPERFICIE = 15;
     
     /** Numero de colunas da matriz da superficie. */
-    int COMPRIMENTO_SUPERFICIE = 15;
+    int COMPRIMENTO_SUPERFICIE = 10;
 
     /** Numero de colunas da matriz do fosso marinho. */
     int LARGURA_FOSSO = 10;

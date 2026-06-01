@@ -25,6 +25,6 @@ public class DeepSeaManagerTest {
 
         boolean sucessoMergulho = manager.iniciarMergulho(5, 5);
         assertTrue(sucessoMergulho);
-        assertEquals(DeepSeaState.DESCIDA, manager.getState());
+        assertEquals(DeepSeaState.FOSSO, manager.getState());
     }
 }

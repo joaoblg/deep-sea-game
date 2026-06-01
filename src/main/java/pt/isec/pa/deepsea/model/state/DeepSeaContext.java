@@ -17,12 +17,14 @@ public class DeepSeaContext {
     private IDeepSeaState estadoAtual;
     private Jogo modelo;
 
-    /**
-     * Inicializa o contexto no estado de setup com um novo modelo de jogo.
-     */
-    public DeepSeaContext() {
-        this.modelo = new Jogo();
-        this.estadoAtual = DeepSeaState.SUPERFICIE.createState(this, modelo);
+    private DeepSeaContext() {
+    }
+
+    public static DeepSeaContext createContext() {
+        DeepSeaContext context = new DeepSeaContext();
+        context.modelo = new Jogo();
+        context.estadoAtual = DeepSeaState.SUPERFICIE.createState(context, context.modelo);
+        return context;
     }
 
     /**
@@ -31,6 +33,15 @@ public class DeepSeaContext {
      */
     void changeState(IDeepSeaState newState) {
         this.estadoAtual = newState;
+    }
+
+    /**
+     * Força a troca de estado — disponível publicamente para ferramentas de debug/demo.
+     * Use com precaução.
+     * @param newState identificador do estado lógico a ativar
+     */
+    public void forceChangeState(DeepSeaState newState) {
+        this.changeState(newState.createState(this, modelo));
     }
 
     /**

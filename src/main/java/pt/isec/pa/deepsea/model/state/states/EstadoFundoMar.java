@@ -80,13 +80,14 @@ public class EstadoFundoMar extends DeepSeaStateAdapter {
 
     @Override
     public boolean voltarAoNavio() {
-        Drone drone = context.getDrone();
-        if (drone != null) {
-            drone.prepararPosicaoInicial("SUBIDA");
-            changeState(DeepSeaState.SUBIDA);
-            return true;
-        }
-        return false;
+        Drone drone = modelo.getNavio().getDroneAtivo();
+        drone.prepararPosicaoInicial("SUBIDA");
+
+        //modelo.getFosso().gerarObstaculos();
+
+
+        changeState(DeepSeaState.FOSSO);
+        return true;
     }
 
     @Override

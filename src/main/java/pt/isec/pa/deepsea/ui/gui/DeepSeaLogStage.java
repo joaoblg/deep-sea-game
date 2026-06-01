@@ -8,7 +8,6 @@ import pt.isec.pa.deepsea.model.DeepSeaManager;
 
 /**
  * Janela secundária para visualização dos logs do jogo.
- * Atualiza-se de forma assíncrona quando o modelo notifica {@link DeepSeaManager#PROP_LOG}.
  */
 public class DeepSeaLogStage {
 
@@ -17,23 +16,33 @@ public class DeepSeaLogStage {
     private final TextArea textArea;
 
     /**
-     * Cria a janela de logs e regista o listener de atualização.
-     * @param manager Facade do modelo.
+     * @param manager Facade do modelo
      */
     public DeepSeaLogStage(DeepSeaManager manager) {
         this.manager = manager;
-        this.textArea = new TextArea();
-        this.textArea.setEditable(false);
-        this.textArea.setWrapText(true);
-        this.textArea.setPrefSize(500, 400);
-
         this.stage = new Stage();
-        this.stage.setTitle("Logs - Deep Sea Mining");
-        this.stage.setScene(new Scene(textArea));
+        this.textArea = new TextArea();
+        createViews();
+        registerHandlers();
+        update();
+    }
 
+    private void createViews() {
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+        textArea.setPrefSize(500, 400);
+
+        stage.setTitle("Logs - Deep Sea Mining");
+        stage.setScene(new Scene(textArea));
+    }
+
+    private void registerHandlers() {
         manager.addPropertyChangeListener(DeepSeaManager.PROP_LOG, evt ->
-                Platform.runLater(this::atualizarConteudo));
-        atualizarConteudo();
+                Platform.runLater(this::update));
+    }
+
+    private void update() {
+        textArea.setText(String.join("\n", manager.getLogs()));
     }
 
     /** Alterna a visibilidade da janela de logs. */
@@ -41,12 +50,8 @@ public class DeepSeaLogStage {
         if (stage.isShowing()) {
             stage.hide();
         } else {
-            atualizarConteudo();
+            update();
             stage.show();
         }
-    }
-
-    private void atualizarConteudo() {
-        textArea.setText(String.join("\n", manager.getLogs()));
     }
 }

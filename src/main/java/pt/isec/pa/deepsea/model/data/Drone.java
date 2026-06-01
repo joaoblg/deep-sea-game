@@ -10,12 +10,12 @@ import java.util.List;
  */
 public class Drone implements Serializable {
     private static final long serialVersionUID = 1L;
+    private int numero;
     private int combustivel;
     private int capCombustivel;
     private int integridadeCasco;
     private int maxIntegridadeCasco;
     private int indiceDanoPrimo;
-    private boolean noNavio;
     private int linhaPos;
     private int linhaCol;
     private int mineriosTransp;
@@ -25,11 +25,18 @@ public class Drone implements Serializable {
      * Construtor que inicializa o drone com valores padrão das constantes.
      */
     public Drone(){
-        this.capCombustivel = Constantes.combust_ini_drone;
+        this(1);
+    }
+
+    /**
+     * @param numero Identificador fixo do drone na frota (1, 2, 3…).
+     */
+    public Drone(int numero){
+        this.numero = numero;
+        this.capCombustivel = Constantes.COMBUSTIVEL_INI_DRONE;
         this.combustivel = this.capCombustivel;
-        this.integridadeCasco = Constantes.max_integridade_drone;
-        this.maxIntegridadeCasco = Constantes.max_integridade_drone;
-        this.noNavio = true;
+        this.integridadeCasco = Constantes.MAX_INTEGRIDADE_DRONE;
+        this.maxIntegridadeCasco = Constantes.MAX_INTEGRIDADE_DRONE;
         this.mineriosTransp = 0;
         this.artefactosTransp = new ArrayList<>();
     }
@@ -41,6 +48,11 @@ public class Drone implements Serializable {
 
     public void reiniciarExpedicao() {
         this.indiceDanoPrimo = 0;
+    }
+
+    /** @return Número fixo do drone na frota (não muda com dano ou ordenação). */
+    public int getNumero() {
+        return numero;
     }
 
     /** @return Nível atual de combustível. */
@@ -174,8 +186,6 @@ public class Drone implements Serializable {
      * @param fase Identificador da fase ("DESCIDA", "SUBIDA" ou "FUNDO").
      */
     public void prepararPosicaoInicial(String fase) {
-        this.noNavio = false;
-
         switch (fase.toUpperCase()) {
             case "DESCIDA" -> {
 
@@ -191,7 +201,8 @@ public class Drone implements Serializable {
                 this.linhaPos = Constantes.COMPRIMENTO_FUNDO / 2;
                 this.linhaCol = Constantes.LARGURA_FUNDO / 2;
             }
-            default -> this.noNavio = true;
+            default -> {
+            }
         }
     }
 }

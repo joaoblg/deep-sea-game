@@ -1,110 +1,131 @@
 package pt.isec.pa.deepsea.ui.gui;
 
 import javafx.application.Platform;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import pt.isec.pa.deepsea.model.DeepSeaManager;
 import pt.isec.pa.deepsea.model.data.Direcoes;
-import pt.isec.pa.deepsea.model.data.Drone;
 import pt.isec.pa.deepsea.ui.res.ImageManager;
 
 /**
- * Vista Canvas do fundo do mar (estado {@link pt.isec.pa.deepsea.model.state.DeepSeaState#FUNDO_MAR}).
+ * Vista Canvas do fundo do mar (estado FUNDO_MAR).
  */
-public class FundoMarView extends Canvas {
-    private DeepSeaManager manager;
+public class FundoMarView extends CanvasPane {
+    private final DeepSeaManager manager;
 
     /**
-     * @param manager Facade do modelo.
+     * @param manager Facade do modelo
+     * @param board Mantido por compatibilidade com DeepSeaBoard (não usado no desenho)
      */
-    public FundoMarView(DeepSeaManager manager) {
+    public FundoMarView(DeepSeaManager manager, DeepSeaBoard board) {
         this.manager = manager;
-        this.widthProperty().addListener(e -> desenhar());
-        this.heightProperty().addListener(e -> desenhar());
+        createViews();
+        registerHandlers();
+        update();
+    }
+
+    private void createViews() {
+        // Canvas criado em CanvasPane
+    }
+
+    private void registerHandlers() {
+        widthProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(this::update));
+        heightProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(this::update));
         manager.addPropertyChangeListener(DeepSeaManager.PROP_DADOS, evt ->
-                Platform.runLater(this::desenhar));
+                Platform.runLater(this::update));
         manager.addPropertyChangeListener(DeepSeaManager.PROP_ESTADO, evt ->
-                Platform.runLater(this::desenhar));
+                Platform.runLater(this::update));
 
         this.setOnMouseClicked(event -> {
-            Drone drone = manager.getDrone();
-            if (drone == null) {
+            if (!manager.hasDroneAtivo()) {
                 return;
             }
+
             int linhas = manager.getLinhasFundo();
             int colunas = manager.getColunasFundo();
+
             int[] celula = GridMouseHelper.celulaDoClique(
                     event.getX(), event.getY(), getWidth(), getHeight(), linhas, colunas);
             if (celula == null) {
                 return;
             }
-            int lin = celula[0];
-            int col = celula[1];
-            if (lin == drone.getLinhaPos() && col == drone.getColunaPos()) {
-                manager.avaliarFundo();
-                return;
-            }
+
             Direcoes dir = GridMouseHelper.direcaoEntreCelulas(
-                    drone.getLinhaPos(), drone.getColunaPos(), lin, col);
+                    manager.getLinhaDrone(), manager.getColunaDrone(), celula[0], celula[1]);
             if (dir != null) {
                 manager.mover(dir);
             }
         });
     }
 
-    /** Redesenha a grelha do fundo do mar e o drone. */
-    public void desenhar() {
+    private void update() {
         GraphicsContext gc = getGraphicsContext2D();
+        if (gc == null) {
+            return;
+        }
+
         double w = getWidth();
         double h = getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
 
         gc.clearRect(0, 0, w, h);
-        gc.setFill(Color.NAVY);
+        gc.setFill(Color.web("#03071e"));
         gc.fillRect(0, 0, w, h);
 
         int linhas = manager.getLinhasFundo();
         int colunas = manager.getColunasFundo();
-        if (linhas == 0 || colunas == 0) return;
+        GridLayoutHelper.GridMetrics grid = GridLayoutHelper.computeFill(w, h, linhas, colunas);
+        if (grid == null) {
+            return;
+        }
 
-        double cellW = w / colunas;
-        double cellH = h / linhas;
+        double cellW = grid.cellW();
+        double cellH = grid.cellH();
 
         for (int i = 0; i < linhas; i++) {
             for (int j = 0; j < colunas; j++) {
-                if (!manager.isFundoRevelado(i, j)) {
+                boolean revelado = manager.isFundoRevelado(i, j);
+                double x = j * cellW;
+                double y = i * cellH;
+
+                if (!revelado) {
                     gc.setFill(Color.BLACK);
-                    gc.fillRect(j * cellW, i * cellH, cellW, cellH);
+                    gc.fillRect(x, y, cellW, cellH);
+                    gc.setStroke(Color.web("#131a26"));
+                    gc.setLineWidth(0.5);
+                    gc.strokeRect(x, y, cellW, cellH);
                 } else {
-                    Object elem = manager.getElemFundo(i, j);
-                    if (elem != null) {
-                        String tipo = elem.getClass().getSimpleName();
+                    String tipo = manager.getElemFundo(i, j);
+
+                    if (tipo != null) {
                         Image img = obterImagemFundo(tipo);
-                        double x = j * cellW;
-                        double y = i * cellH;
-                        if (img != null) {
+
+                        if (img != null && !img.isError() && img.getWidth() > 0) {
                             gc.drawImage(img, x, y, cellW, cellH);
                         } else {
                             desenharFormaAlternativaFundo(gc, tipo, x, y, cellW, cellH);
                         }
                     }
-                    gc.setStroke(Color.rgb(255, 255, 255, 0.2));
-                    gc.strokeRect(j * cellW, i * cellH, cellW, cellH);
                 }
             }
         }
 
-        Drone drone = manager.getDrone();
-        if (drone != null) {
-            int linha = drone.getLinhaPos();
-            int coluna = drone.getColunaPos();
-            Image imgDrone = ImageManager.getImage("drone.png");
-            if (imgDrone != null) {
-                gc.drawImage(imgDrone, coluna * cellW, linha * cellH, cellW, cellH);
+        if (manager.hasDroneAtivo()) {
+            int linha = manager.getLinhaDrone();
+            int coluna = manager.getColunaDrone();
+            double x = coluna * cellW;
+            double y = linha * cellH;
+
+            Image imgDrone = ImageManager.getImage(manager.getNomeImagemDroneAtivo());
+
+            if (imgDrone != null && !imgDrone.isError() && imgDrone.getWidth() > 0) {
+                gc.drawImage(imgDrone, x, y, cellW, cellH);
             } else {
                 gc.setFill(Color.YELLOW);
-                gc.fillOval(coluna * cellW + cellW * 0.1, linha * cellH + cellH * 0.1, cellW * 0.8, cellH * 0.8);
+                gc.fillOval(x + cellW * 0.1, y + cellH * 0.1, cellW * 0.8, cellH * 0.8);
             }
         }
     }
@@ -114,7 +135,7 @@ public class FundoMarView extends Canvas {
             return ImageManager.getImage("minerios.png");
         }
         if (tipo.equals("Monstro")) {
-            return ImageManager.getImage("monstro.png");
+            return ImageManager.getImage("monstoMar-removebg-preview.png");
         }
         if (tipo.equals("AnimalMarinho")) {
             return ImageManager.getImage("animal.png");

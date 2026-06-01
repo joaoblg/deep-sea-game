@@ -1,9 +1,9 @@
 package pt.isec.pa.deepsea.model.state.states;
 
-import pt.isec.pa.deepsea.model.Jogo;
+import pt.isec.pa.deepsea.model.    Jogo;
 import pt.isec.pa.deepsea.model.data.Constantes;
 import pt.isec.pa.deepsea.model.data.Direcoes;
-import pt.isec.pa.deepsea.model.data.ExpedicaoHelper;
+import pt.isec.pa.deepsea.model.data.Drone;
 import pt.isec.pa.deepsea.model.state.DeepSeaContext;
 import pt.isec.pa.deepsea.model.state.DeepSeaState;
 import pt.isec.pa.deepsea.model.state.DeepSeaStateAdapter;
@@ -27,21 +27,15 @@ public class EstadoSuperficie extends DeepSeaStateAdapter {
 
     @Override
     public boolean iniciarMergulho(int linha, int coluna) {
-        if (modelo.getSuperficie().getCelula(linha, coluna) == null) {
-            return false;
-        }
-
-        modelo.getNavio().setPosicao(linha, coluna);
         modelo.setZonaExpedicao(linha, coluna);
 
-        if (context.getDrone() != null) {
-            context.getDrone().prepararPosicaoInicial("DESCIDA");
-            context.getDrone().reiniciarExpedicao();
-            modelo.getSuperficie().getCelula(linha, coluna).getFossoM().gerarObstaculos();
-            changeState(DeepSeaState.DESCIDA);
-            return true;
-        }
-        return false;
+        Drone drone = modelo.getNavio().getDroneAtivo();
+        drone.prepararPosicaoInicial("DESCIDA");
+
+        modelo.getFosso().gerarObstaculos();
+
+        changeState(DeepSeaState.FOSSO);
+        return true;
     }
 
     @Override

@@ -43,7 +43,7 @@ public class PuzzleRecuperacao implements Serializable {
      * Baralha o puzzle X vezes (onde X é uma ocnstante) a partir do puzzle resolvido, usando movimentos aleatorios.
      * Com isto garante-se que o puzzle é solúvel 100% das vezes
      */
-    public void baralhar(){
+    public final void baralhar(){
         Random rand= new Random();
 
         for (int i=0; i< Constantes.NUM_BARALHAR;i++){

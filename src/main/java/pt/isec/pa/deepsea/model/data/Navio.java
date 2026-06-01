@@ -14,8 +14,8 @@ public class Navio implements Serializable {
     private static final long serialVersionUID = 1L;
     private int combustivel;
     private int minerios;
-    private List<Artefacto> artefactosRecolhidos;
-    private Set<Drone> drones;
+    private final List<Artefacto> artefactosRecolhidos;
+    private final Set<Drone> drones;
     private Drone droneSelecionado;
     private int linhaPos;
     private int colunaPos;
@@ -26,7 +26,7 @@ public class Navio implements Serializable {
      */
     public Navio() {
         
-        this.combustivel = Constantes.combust_ini_navio;
+        this.combustivel = Constantes.COMBUSTIVEL_INI_NAVIO;
         this.minerios = 0;
         this.artefactosRecolhidos = new ArrayList<>();
         this.drones = new HashSet<>();
@@ -95,28 +95,20 @@ public class Navio implements Serializable {
      * @return true se o índice for válido.
      */
     public boolean selecionarDronePorIndice(int indice) {
-        List<Drone> lista = getDronesOrdenadosPorCasco();
-        if (indice < 1 || indice > lista.size()) {
-            return false;
+        for (Drone drone : drones) {
+            if (drone.getNumero() == indice) {
+                return selecionarDrone(drone);
+            }
         }
-        return selecionarDrone(lista.get(indice - 1));
+        return false;
     }
 
     /**
-     * @return Índice (base 1) do drone selecionado na lista ordenada por casco, ou 0 se nenhum.
+     * @return Número fixo (1..n) do drone selecionado, ou 0 se nenhum.
      */
     public int getIndiceDroneSelecionado() {
-        List<Drone> lista = getDronesOrdenadosPorCasco();
         Drone ativo = getDroneAtivo();
-        if (ativo == null) {
-            return 0;
-        }
-        for (int i = 0; i < lista.size(); i++) {
-            if (lista.get(i) == ativo) {
-                return i + 1;
-            }
-        }
-        return 0;
+        return ativo != null ? ativo.getNumero() : 0;
     }
 
     /**

@@ -4,21 +4,13 @@ package pt.isec.pa.deepsea.model;
 
 import java.io.Serializable;
 
-
-
 import pt.isec.pa.deepsea.model.data.CelulaSuperficie;
-
 import pt.isec.pa.deepsea.model.data.Constantes;
-
 import pt.isec.pa.deepsea.model.data.Drone;
-
-import pt.isec.pa.deepsea.model.data.Navio;
-
-import pt.isec.pa.deepsea.model.data.SuperficieMarinha;
-
-import pt.isec.pa.deepsea.model.data.FundoDoMar;
-
 import pt.isec.pa.deepsea.model.data.FossoMarinho;
+import pt.isec.pa.deepsea.model.data.FundoDoMar;
+import pt.isec.pa.deepsea.model.data.Navio;
+import pt.isec.pa.deepsea.model.data.SuperficieMarinha;
 
 
 
@@ -160,7 +152,7 @@ public class Jogo implements Serializable {
 
         for (int i = 0; i < 3; i++) {
 
-            Drone d = new Drone();
+            Drone d = new Drone(i + 1);
 
             d.setPosicao(centroLin, centoCol);
 
@@ -170,7 +162,7 @@ public class Jogo implements Serializable {
 
 
 
-        if (Constantes.modo_defesa){
+        if (ModoJogo.isModoDefesa()){
 
             modoDefesa();
 
@@ -229,14 +221,23 @@ public class Jogo implements Serializable {
 
 
         CelulaSuperficie zona1 = superficie.getCelula(centroLin, centroCol);
-
-        zona1.getFundoM().addArtefactosDefesa(1, metadeArtefactos);
+        if (zona1 != null) {
+            zona1.getFundoM().addArtefactosDefesa(1, metadeArtefactos);
+        }
 
 
 
         CelulaSuperficie zona2 = superficie.getCelula(centroLin, centroCol + 1);
+        if (zona2 != null) {
+            zona2.getFundoM().addArtefactosDefesa(metadeArtefactos + 1, restoArtefactos);
+        }
 
-        zona2.getFundoM().addArtefactosDefesa(metadeArtefactos + 1, restoArtefactos);
+        // Se a opção estiver ativa, aumentar o combustível dos drones no inicio
+        if (ModoJogo.isAumentarCombustivelDrone()) {
+            for (pt.isec.pa.deepsea.model.data.Drone d : navio.getDrones()) {
+                d.adicionarCombustivel(50);
+            }
+        }
 
     }
 

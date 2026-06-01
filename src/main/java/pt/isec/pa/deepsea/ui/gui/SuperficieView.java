@@ -1,7 +1,6 @@
 package pt.isec.pa.deepsea.ui.gui;
 
 import javafx.application.Platform;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -9,129 +8,122 @@ import pt.isec.pa.deepsea.model.DeepSeaManager;
 import pt.isec.pa.deepsea.ui.res.ImageManager;
 
 /**
- * Vista Canvas da superfície marinha (estado {@link pt.isec.pa.deepsea.model.state.DeepSeaState#SUPERFICIE}).
+ * Vista Canvas da superfície (estado SUPERFICIE).
  */
-public class SuperficieView extends Canvas {
-    private DeepSeaManager manager;
+public class SuperficieView extends CanvasPane {
+    private final DeepSeaManager manager;
 
     /**
-     * @param manager Facade do modelo.
+     * @param manager Facade do modelo
      */
     public SuperficieView(DeepSeaManager manager) {
         this.manager = manager;
-        this.widthProperty().addListener(e -> desenhar());
-        this.heightProperty().addListener(e -> desenhar());
-
-        manager.addPropertyChangeListener(DeepSeaManager.PROP_DADOS, evt -> {
-            Platform.runLater(this::desenhar);
-        });
-
-        manager.addPropertyChangeListener(DeepSeaManager.PROP_ESTADO, evt -> {
-            Platform.runLater(this::desenhar);
-        });
-
-        this.setOnMouseClicked(event -> {
-            int linhas = manager.getLinhasSuperficie();
-            int colunas = manager.getColunasSuperficie();
-            int[] celula = GridMouseHelper.celulaDoClique(
-                    event.getX(), event.getY(), getWidth(), getHeight(), linhas, colunas);
-            if (celula == null) {
-                return;
-            }
-            // Rampa de lançamento: clique numa célula escolhe o ponto de mergulho (como antes).
-            manager.iniciarMergulho(celula[0], celula[1]);
-        });
+        createViews();
+        registerHandlers();
+        update();
     }
 
-    /** Redesenha o mapa da superfície e o navio. */
-    public void desenhar() {
+    private void createViews() {
+        // Canvas criado em CanvasPane
+    }
+
+    private void registerHandlers() {
+        widthProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(this::update));
+        heightProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(this::update));
+        manager.addPropertyChangeListener(DeepSeaManager.PROP_DADOS, evt ->
+                Platform.runLater(this::update));
+        manager.addPropertyChangeListener(DeepSeaManager.PROP_ESTADO, evt ->
+                Platform.runLater(this::update));
+    }
+
+    @Override
+    protected void layoutChildren() {
+        super.layoutChildren();
+        update();
+    }
+
+    private void update() {
         GraphicsContext gc = getGraphicsContext2D();
+        if (gc == null) {
+            return;
+        }
+
         double w = getWidth();
         double h = getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
 
         gc.clearRect(0, 0, w, h);
+        gc.setFill(Color.web("#0e4b75"));
+        gc.fillRect(0, 0, w, h);
+
+        desenharFundoMar(gc, w, h);
 
         int linhas = manager.getLinhasSuperficie();
         int colunas = manager.getColunasSuperficie();
-        if (linhas == 0 || colunas == 0) return;
+        GridLayoutHelper.GridMetrics grid = GridLayoutHelper.computeFill(w, h, linhas, colunas);
+        if (grid == null) {
+            return;
+        }
 
-        double cellW = w / colunas;
-        double cellH = h / linhas;
-
-        gc.setFill(Color.web("#0a192f"));
-        gc.fillRect(0, 0, w, h);
-
-        Image imgAgua = ImageManager.getImage("mar.png");
+        double cellW = grid.cellW();
+        double cellH = grid.cellH();
+        Image imgArtefacto = ImageManager.getImage("artefacto.png");
 
         for (int i = 0; i < linhas; i++) {
             for (int j = 0; j < colunas; j++) {
+                double x = j * cellW;
+                double y = i * cellH;
 
-                if (imgAgua != null) {
-                    gc.drawImage(imgAgua, j * cellW, i * cellH, cellW + 1.0, cellH + 1.0);
-                } else {
-                    gc.setFill(Color.web("#172a45"));
-                    gc.fillRect(j * cellW, i * cellH, cellW + 1.0, cellH + 1.0);
-                }
+                gc.setStroke(Color.web("rgba(255, 255, 255, 0.15)"));
+                gc.setLineWidth(1.0);
+                gc.strokeRect(x, y, cellW, cellH);
 
                 if (manager.contemArtefactoNaSuperficie(i, j)) {
-                    Image imgArt = ImageManager.getImage("artefacto.png");
-                    if (imgArt != null) {
-                        gc.drawImage(imgArt, j * cellW, i * cellH, cellW, cellH);
-                    } else {
-                        gc.setFill(Color.rgb(255, 215, 0, 0.5));
-                        gc.fillOval(j * cellW + cellW * 0.2, i * cellH + cellH * 0.2, cellW * 0.6, cellH * 0.6);
+                    gc.setFill(Color.web("rgba(0,0,0,0.4)"));
+                    gc.fillOval(x + cellW * 0.35, y + cellH * 0.35, cellW * 0.4, cellH * 0.4);
+
+                    if (imgArtefacto != null && !imgArtefacto.isError()) {
+                        gc.drawImage(imgArtefacto, x + cellW * 0.3, y + cellH * 0.3, cellW * 0.4, cellH * 0.4);
                     }
                 }
             }
         }
 
-
-        gc.setStroke(Color.rgb(23, 42, 69, 0.4));
-        gc.setLineWidth(1.0);
-
-        for (int i = 0; i <= linhas; i++) {
-            gc.strokeLine(0, i * cellH, w, i * cellH);
-        }
-        for (int j = 0; j <= colunas; j++) {
-            gc.strokeLine(j * cellW, 0, j * cellW, h);
-        }
-
-        // ==========================================
-        // DESENHO DO NAVIO
-        // ==========================================
-
         int navioLinha = manager.getLinhaNavio();
         int navioColuna = manager.getColunaNavio();
-
         Image imgNavio = ImageManager.getImage("navioSagres.png");
+        double nx = navioColuna * cellW;
+        double ny = navioLinha * cellH;
 
-        if (imgNavio != null) {
-            double imgW = imgNavio.getWidth();
-            double imgH = imgNavio.getHeight();
-
-            double scaleX = cellW / imgW;
-            double scaleY = cellH / imgH;
-            double scaleBase = Math.min(scaleX, scaleY);
-
-            double multiplicador = 2;
-            double scaleFinal = scaleBase * multiplicador;
-
-            double drawW = imgW * scaleFinal;
-            double drawH = imgH * scaleFinal;
-
-
-            double drawX = (navioColuna * cellW) + (cellW - drawW) / 2;
-            double drawY = (navioLinha * cellH) + (cellH - drawH) / 2 - 10;
-
-            // 5. Desenhar!
-            gc.drawImage(imgNavio, drawX, drawY, drawW, drawH);
-
-
-        } else {
-            gc.setFill(Color.DARKGRAY);
-            gc.fillRect(navioColuna * cellW, navioLinha * cellH, cellW, cellH);
-            gc.setFill(Color.WHITE);
-            gc.fillText("NAVIO", navioColuna * cellW + cellW / 4, navioLinha * cellH + cellH / 2);
+        if (imgNavio != null && !imgNavio.isError()) {
+            gc.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
+            gc.fillOval(nx + cellW * 0.1, ny + cellH * 0.7, cellW * 0.8, cellH * 0.2);
+            gc.drawImage(imgNavio, nx, ny, cellW, cellH);
         }
+    }
+
+    private void desenharFundoMar(GraphicsContext gc, double w, double h) {
+        Image imgMar = ImageManager.getImage("beautiful-photo-sea-waves.jpg");
+        if (imgMar == null || imgMar.isError() || imgMar.getWidth() <= 0) {
+            imgMar = ImageManager.getImage("mar.png");
+        }
+        if (imgMar == null || imgMar.isError() || imgMar.getWidth() <= 0) {
+            return;
+        }
+
+        double imgRatio = imgMar.getWidth() / imgMar.getHeight();
+        double canvasRatio = w / h;
+        double drawW;
+        double drawH;
+        if (imgRatio > canvasRatio) {
+            drawH = h;
+            drawW = h * imgRatio;
+        } else {
+            drawW = w;
+            drawH = w / imgRatio;
+        }
+        gc.drawImage(imgMar, (w - drawW) / 2.0, (h - drawH) / 2.0, drawW, drawH);
     }
 }

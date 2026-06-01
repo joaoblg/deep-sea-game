@@ -50,15 +50,17 @@ public final class GridMouseHelper {
     }
 
     /**
-     * Converte coordenadas de rato numa grelha rectangular.
+     * Converte coordenadas de rato numa grelha que preenche o canvas (alinhada com {@link GridLayoutHelper#computeFill}).
      */
     public static int[] celulaDoClique(double mouseX, double mouseY, double largura, double altura,
                                        int linhas, int colunas) {
-        if (linhas <= 0 || colunas <= 0 || largura <= 0 || altura <= 0) {
+        GridLayoutHelper.GridMetrics grid = GridLayoutHelper.computeFill(largura, altura, linhas, colunas);
+        if (grid == null) {
             return null;
         }
-        int col = (int) (mouseX / (largura / colunas));
-        int lin = (int) (mouseY / (altura / linhas));
+
+        int col = (int) (mouseX / grid.cellW());
+        int lin = (int) (mouseY / grid.cellH());
         if (lin < 0 || lin >= linhas || col < 0 || col >= colunas) {
             return null;
         }

@@ -141,14 +141,11 @@ public class FundoDoMar implements Serializable {
             grelha[altura / 2][largura / 2] = new Monstro();
         }
 
-
         if (altura > 1 && largura > 2) {
-            grelha[1][1] = new Minerio(10);
-
-            grelha[1][2] = new Minerio(50);
+            grelha[1][1] = new Minerio(1);
+            grelha[1][2] = new Minerio(100);
         }
 
-        addArtefactosDefesa(1, 3);
 
     }
 
