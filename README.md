@@ -12,6 +12,11 @@ The project highlights enterprise-grade Object-Oriented software engineering pra
 
 ---
 
+## 📸 Gameplay Preview
+
+![Deep Sea Mining Gameplay](deepsea_gameplay.png)
+
+
 ## 🌟 Key Features
 
 * **Exploration & Strategy Gameplay:** Control autonomous drones navigating through deep ocean trenches, collecting minerals and artifacts while avoiding obstacles and sea currents.

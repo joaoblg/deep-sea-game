@@ -27,7 +27,6 @@ public class DeepSeaMenuBar extends MenuBar {
     private Menu menuRecent;
     private CheckMenuItem muteItem;
     private CheckMenuItem itemModoDefesa;
-    // removed extra defense menu items; keep only Modo Defesa
     private MenuItem itemNew;
     private MenuItem itemOpen;
     private MenuItem itemSaveAs;
@@ -53,30 +52,30 @@ public class DeepSeaMenuBar extends MenuBar {
 
     private void createViews() {
         logStage = new DeepSeaLogStage(manager);
-        menuRecent = new Menu("Open recent");
+        menuRecent = new Menu("Recentes");
 
-        Menu menuGame = new Menu("Game");
-        itemNew = new MenuItem("New");
-        itemOpen = new MenuItem("Open...");
-        itemSaveAs = new MenuItem("Save as...");
-        itemExit = new MenuItem("Exit");
-        itemModoDefesa = new CheckMenuItem("Modo Defesa");
+        Menu menuGame = new Menu("Jogo");
+        itemNew = new MenuItem("Novo Jogo");
+        itemOpen = new MenuItem("Abrir...");
+        itemSaveAs = new MenuItem("Gravar como...");
+        itemExit = new MenuItem("Sair");
+        itemModoDefesa = new CheckMenuItem("Modo Defesa (Avaliação)");
 
         menuGame.getItems().addAll(
             itemNew, itemOpen, menuRecent, itemSaveAs, new SeparatorMenuItem(), itemModoDefesa, itemExit);
 
-        Menu menuLog = new Menu("Log");
-        itemShowHide = new MenuItem("Show/Hide");
-        itemSaveLogs = new MenuItem("Save logs");
-        itemClearLogs = new MenuItem("Clear logs");
+        Menu menuLog = new Menu("Logs");
+        itemShowHide = new MenuItem("Ver / Ocultar Logs");
+        itemSaveLogs = new MenuItem("Exportar Logs...");
+        itemClearLogs = new MenuItem("Limpar Logs");
         menuLog.getItems().addAll(itemShowHide, itemSaveLogs, itemClearLogs);
 
-        Menu menuSound = new Menu("Sound");
-        muteItem = new CheckMenuItem("Mute");
+        Menu menuSound = new Menu("Áudio");
+        muteItem = new CheckMenuItem("Silenciar Sons");
         menuSound.getItems().add(muteItem);
 
-        Menu menuView = new Menu("View");
-        itemSecondWindow = new MenuItem("New window");
+        Menu menuView = new Menu("Vista");
+        itemSecondWindow = new MenuItem("Abrir Segunda Janela (Sincronizada)");
         menuView.getItems().add(itemSecondWindow);
 
         getMenus().addAll(menuGame, menuLog, menuSound, menuView);
@@ -96,8 +95,6 @@ public class DeepSeaMenuBar extends MenuBar {
             manager.setModoDefesa(itemModoDefesa.isSelected());
             manager.iniciarJogo();
         });
-
-        // extra defense options are exposed in HUD controls; menu only toggles Modo Defesa
 
         SoundManager sm = SoundManager.getInstance();
         muteItem.selectedProperty().addListener((obs, oldVal, newVal) -> sm.setMuted(newVal));
@@ -155,7 +152,7 @@ public class DeepSeaMenuBar extends MenuBar {
     private FileChooser criarChooserSave() {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Save Deep Sea", "*.dat"));
+                new FileChooser.ExtensionFilter("Save Deep Sea (*.dat)", "*.dat"));
         return chooser;
     }
 

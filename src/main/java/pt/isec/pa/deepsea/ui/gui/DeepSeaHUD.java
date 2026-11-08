@@ -24,8 +24,8 @@ import pt.isec.pa.deepsea.ui.res.ImageManager;
 public class DeepSeaHUD {
 
     private static final String ESTILO_PAINEL =
-            "-fx-background-color: #2c3e50; -fx-border-color: #1a252f;";
-    private static final double LARGURA_PAINEL = 240;
+            "-fx-background-color: linear-gradient(to bottom, #081726, #040d16); -fx-border-color: #163852;";
+    private static final double LARGURA_PAINEL = 245;
 
     private final DeepSeaManager manager;
     private VBox painelEsquerdo;
@@ -70,15 +70,15 @@ public class DeepSeaHUD {
         painelEsquerdo.setAlignment(Pos.TOP_LEFT);
         painelEsquerdo.setPrefWidth(LARGURA_PAINEL);
         painelEsquerdo.setMinWidth(LARGURA_PAINEL);
-        painelEsquerdo.setStyle(ESTILO_PAINEL + " -fx-border-width: 0 2 0 0;");
+        painelEsquerdo.setStyle(ESTILO_PAINEL + " -fx-border-width: 0 1 0 0;");
 
-        Label tituloEsq = criarTitulo("INFORMAÇÃO");
+        Label tituloEsq = criarTitulo("INFORMAÇÕES");
         lblEstado = criarTexto();
 
-        HBox linhaCombNavio = criarLinhaComIcone("navioSagres.png", "Combustível");
+        HBox linhaCombNavio = criarLinhaComIcone("navioSagres.png", "Combustível Navio");
         barraCombustivelNavio = criarBarraProgresso();
 
-        HBox linhaRecursos = new HBox(20);
+        HBox linhaRecursos = new HBox(12);
         linhaRecursos.setAlignment(Pos.CENTER_LEFT);
         lblMineriosNavio = adicionarBlocoRecurso(linhaRecursos, "minerios.png", "Minérios");
         lblArtefactosNavio = adicionarBlocoRecurso(linhaRecursos, "artefacto.png", "Artefactos");
@@ -86,7 +86,7 @@ public class DeepSeaHUD {
         lblNavioPosicao = criarTexto();
 
         painelEsquerdo.getChildren().addAll(
-                tituloEsq, new Separator(), lblEstado, criarSubtitulo("Navio"),
+                tituloEsq, new Separator(), lblEstado, criarSubtitulo("Navio de Superfície"),
                 linhaCombNavio, barraCombustivelNavio, linhaRecursos, lblNavioPosicao
         );
 
@@ -95,9 +95,9 @@ public class DeepSeaHUD {
         painelDireito.setAlignment(Pos.TOP_LEFT);
         painelDireito.setPrefWidth(LARGURA_PAINEL);
         painelDireito.setMinWidth(LARGURA_PAINEL);
-        painelDireito.setStyle(ESTILO_PAINEL + " -fx-border-width: 0 0 0 2;");
+        painelDireito.setStyle(ESTILO_PAINEL + " -fx-border-width: 0 0 0 1;");
 
-        Label tituloDir = criarTitulo("DRONES");
+        Label tituloDir = criarTitulo("DRONES SUBMARINOS");
         lblDroneAtivo = criarTexto();
         barraCombustivelDrone = criarBarraProgresso();
         barraCascoDrone = criarBarraProgresso();
@@ -105,21 +105,21 @@ public class DeepSeaHUD {
         boxFrota = new VBox(6);
         lblAtalhos = criarTexto();
         lblAtalhos.setWrapText(true);
-        lblAtalhos.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+        lblAtalhos.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-line-spacing: 2px;");
 
         painelDireito.getChildren().addAll(
                 tituloDir, new Separator(), lblDroneAtivo,
                 criarLinhaComIcone("drone.png", "Combustível"), barraCombustivelDrone,
-                criarLinhaLabel("Casco"), barraCascoDrone,
-                criarSubtitulo("Frota"), boxFrota, new Separator(), criarLinhaLabel("Atalhos"), lblAtalhos
+                criarLinhaLabel("Integridade do Casco"), barraCascoDrone,
+                criarSubtitulo("Frota"), boxFrota, new Separator(), criarLinhaLabel("Comandos & Atalhos"), lblAtalhos
         );
 
         // debug box
         debugBox = new VBox(8);
         debugBox.setPadding(new Insets(8));
-        btnFimJogo = new Button("Declarar Fim Jogo");
+        btnFimJogo = new Button("Declarar Fim de Jogo");
         btnDeclararVitoria = new Button("Declarar Vitória");
-        btnAddCombustivel50 = new Button("Adicionar Combustível +50");
+        btnAddCombustivel50 = new Button("Combustível Drone +50");
         btnResolverPuzzle = new Button("Resolver Puzzle");
         btnResolverPuzzle.setVisible(false);
         btnResolverPuzzle.setManaged(false);
@@ -147,8 +147,8 @@ public class DeepSeaHUD {
             return;
         }
 
-        lblEstado.setText(estado.name());
-        lblEstado.setStyle("-fx-text-fill: #3eb4e8; -fx-font-weight: bold; -fx-font-size: 14px;");
+        lblEstado.setText("ESTADO: " + formatarEstado(estado));
+        lblEstado.setStyle("-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-color: rgba(56, 189, 248, 0.12); -fx-padding: 4 8 4 8; -fx-background-radius: 6;");
 
         aplicarBarra(barraCombustivelNavio, manager.getCombustivelNavio(), Constantes.COMBUSTIVEL_INI_NAVIO);
 
@@ -163,19 +163,19 @@ public class DeepSeaHUD {
             colunaPos = manager.getColunaDrone();
             tipoPos = "Drone";
         }
-        lblNavioPosicao.setText(String.format("%s Posição: [%d, %d]", tipoPos, linhaPos, colunaPos));
-        lblNavioPosicao.setStyle("-fx-text-fill: #bdc3c7; -fx-font-size: 12px;");
+        lblNavioPosicao.setText(String.format("📍 %s: Linha %d, Coluna %d", tipoPos, linhaPos + 1, colunaPos + 1));
+        lblNavioPosicao.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
 
         if (manager.hasDroneAtivo()) {
-            lblDroneAtivo.setText("Drone " + manager.getNumeroDroneAtivo());
-            lblDroneAtivo.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 14px; -fx-font-weight: bold;");
+            lblDroneAtivo.setText("⚡ Drone Ativo: #" + manager.getNumeroDroneAtivo());
+            lblDroneAtivo.setStyle("-fx-text-fill: #facc15; -fx-font-size: 13px; -fx-font-weight: bold;");
 
             aplicarBarra(barraCombustivelDrone, manager.getCombustivelDroneAtivo(), manager.getCapCombustivelDroneAtivo());
             aplicarBarra(barraCascoDrone, manager.getIntegridadeCascoDroneAtivo(), manager.getMaxIntegridadeCascoDroneAtivo());
-            barraCascoDrone.setStyle("-fx-accent: #3498db; -fx-control-inner-background: #1a252f;");
+            barraCascoDrone.setStyle("-fx-accent: #38bdf8; -fx-control-inner-background: #050f18;");
         } else {
-            lblDroneAtivo.setText("—");
-            lblDroneAtivo.setStyle("-fx-text-fill: #95a5a6;");
+            lblDroneAtivo.setText("⚪ Nenhum Drone em Operação");
+            lblDroneAtivo.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
             barraCombustivelDrone.setProgress(0);
             barraCascoDrone.setProgress(0);
         }
@@ -194,14 +194,27 @@ public class DeepSeaHUD {
         btnResolverPuzzle.setManaged(emPuzzle);
     }
 
+    private String formatarEstado(DeepSeaState estado) {
+        return switch (estado) {
+            case SUPERFICIE -> "Superfície";
+            case OFICINA -> "Oficina do Navio";
+            case FOSSO -> "Fosso Marinho";
+            case DESCIDA -> "Descida ao Fundo";
+            case SUBIDA -> "Subida à Superfície";
+            case FUNDO_MAR -> "Fundo do Oceano";
+            case PUZZLE -> "Puzzle de Recuperação";
+            case FIM_JOGO -> "Fim da Expedição";
+        };
+    }
+
     private String atalhosPara(DeepSeaState estado) {
         return switch (estado) {
-            case SUPERFICIE -> "Setas — Navio | 1-3 — Drone | O — Oficina | Espaço — Mergulho";
-            case OFICINA -> "1-3 — Drone | Esc/V — Sair";
-            case FOSSO, DESCIDA, SUBIDA -> "Setas/Clique — Drone";
-            case FUNDO_MAR -> "Setas — Mover | Espaço — Avaliar | R — Minério | V — Navio";
-            case PUZZLE -> "Setas — Peça";
-            case FIM_JOGO -> "Fim da expedição.";
+            case SUPERFICIE -> "• Setas: Navegar Navio\n• 1, 2, 3: Selecionar Drone\n• O: Entrar na Oficina\n• Espaço: Iniciar Mergulho";
+            case OFICINA -> "• 1, 2, 3: Escolher Drone\n• Esc / V: Sair da Oficina";
+            case FOSSO, DESCIDA, SUBIDA -> "• Setas / Clique: Pilotar Drone";
+            case FUNDO_MAR -> "• Setas: Mover Drone\n• Espaço: Avaliar Fundo\n• R: Recolher Minério\n• V: Regressar ao Navio";
+            case PUZZLE -> "• Setas / Clique: Mover Peça";
+            case FIM_JOGO -> "• Expedição finalizada.";
         };
     }
 
@@ -211,11 +224,11 @@ public class DeepSeaHUD {
         barra.setProgress(percentagem);
 
         if (percentagem > 0.5) {
-            barra.setStyle("-fx-accent: #2ecc71; -fx-control-inner-background: #1a252f;");
+            barra.setStyle("-fx-accent: #10b981; -fx-control-inner-background: #050f18;");
         } else if (percentagem > 0.2) {
-            barra.setStyle("-fx-accent: #f1c40f; -fx-control-inner-background: #1a252f;");
+            barra.setStyle("-fx-accent: #f59e0b; -fx-control-inner-background: #050f18;");
         } else {
-            barra.setStyle("-fx-accent: #e74c3c; -fx-control-inner-background: #1a252f;");
+            barra.setStyle("-fx-accent: #ef4444; -fx-control-inner-background: #050f18;");
         }
     }
 
@@ -224,13 +237,13 @@ public class DeepSeaHUD {
         lblsFrota.clear();
 
         int numeroAtivo = manager.getNumeroDroneAtivo();
-        String estiloNormal = "-fx-text-fill: #ecf0f1; -fx-font-size: 11px;";
-        String estiloDestaque = "-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 11px;";
+        String estiloNormal = "-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-padding: 3 6 3 6; -fx-background-color: rgba(15, 23, 42, 0.4); -fx-background-radius: 4;";
+        String estiloDestaque = "-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 3 6 3 6; -fx-background-color: rgba(56, 189, 248, 0.15); -fx-background-radius: 4; -fx-border-color: rgba(56, 189, 248, 0.4); -fx-border-radius: 4;";
 
         for (String linha : manager.getResumoFrotaDrones()) {
             Label lbl = criarTexto();
-            lbl.setText(linha);
-            lbl.setStyle(numeroAtivo > 0 && linha.startsWith("Drone " + numeroAtivo + " —")
+            lbl.setText(linha.replace("->", "➔"));
+            lbl.setStyle(numeroAtivo > 0 && (linha.startsWith("Drone " + numeroAtivo + " ") || linha.startsWith("Drone " + numeroAtivo + " ->"))
                     ? estiloDestaque : estiloNormal);
             lblsFrota.add(lbl);
             boxFrota.getChildren().add(lbl);
@@ -244,8 +257,9 @@ public class DeepSeaHUD {
     }
 
     private Label adicionarBlocoRecurso(HBox linha, String imagem, String titulo) {
-        HBox box = new HBox(6);
+        HBox box = new HBox(8);
         box.setAlignment(Pos.CENTER_LEFT);
+        box.setStyle("-fx-background-color: rgba(15, 23, 42, 0.6); -fx-border-color: rgba(56, 189, 248, 0.2); -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 6 10 6 10;");
 
         ImageView iv = criarIcone(imagem);
         if (iv != null) {
@@ -253,12 +267,12 @@ public class DeepSeaHUD {
         }
 
         Label lblTitulo = new Label(titulo);
-        lblTitulo.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 10px;");
+        lblTitulo.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 10px; -fx-font-weight: 600;");
 
         Label lblValor = new Label("0");
-        lblValor.setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-font-weight: bold;");
+        lblValor.setStyle("-fx-text-fill: #f8fafc; -fx-font-size: 15px; -fx-font-weight: 800;");
 
-        VBox textos = new VBox(0);
+        VBox textos = new VBox(1);
         textos.getChildren().addAll(lblTitulo, lblValor);
         box.getChildren().add(textos);
         linha.getChildren().add(box);
@@ -293,13 +307,13 @@ public class DeepSeaHUD {
 
     private Label criarLinhaLabel(String texto) {
         Label lbl = new Label(texto);
-        lbl.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
+        lbl.setStyle("-fx-text-fill: #cbd5e1; -fx-font-size: 11px; -fx-font-weight: 600;");
         return lbl;
     }
 
     private Label criarSubtitulo(String texto) {
-        Label lbl = new Label("— " + texto + " —");
-        lbl.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+        Label lbl = new Label("── " + texto.toUpperCase() + " ──");
+        lbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold; -fx-letter-spacing: 1px;");
         return lbl;
     }
 
@@ -307,21 +321,21 @@ public class DeepSeaHUD {
         ProgressBar barra = new ProgressBar(0);
         barra.setPrefWidth(LARGURA_PAINEL - 32);
         barra.setPrefHeight(12);
-        barra.setStyle("-fx-accent: #2ecc71; -fx-control-inner-background: #1a252f;");
+        barra.setStyle("-fx-accent: #10b981; -fx-control-inner-background: #050f18;");
         return barra;
     }
 
     private Label criarTitulo(String texto) {
         Label lbl = new Label(texto);
-        lbl.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        lbl.setStyle("-fx-text-fill: #ecf0f1;");
+        lbl.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
+        lbl.setStyle("-fx-text-fill: #38bdf8; -fx-letter-spacing: 1.2px;");
         return lbl;
     }
 
     private Label criarTexto() {
         Label lbl = new Label();
-        lbl.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
-        lbl.setStyle("-fx-text-fill: #ecf0f1;");
+        lbl.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 12));
+        lbl.setStyle("-fx-text-fill: #f1f5f9;");
         lbl.setWrapText(true);
         return lbl;
     }

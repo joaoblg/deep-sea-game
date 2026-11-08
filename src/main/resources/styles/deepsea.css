@@ -1,0 +1,138 @@
+/* Modern Dark Naval / Sci-Fi Theme for Deep Sea Mining */
+
+.root {
+    -fx-font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
+    -fx-base: #07131e;
+    -fx-background-color: #07131e;
+}
+
+/* MENU BAR */
+.menu-bar {
+    -fx-background-color: linear-gradient(to bottom, #0d2133, #07131e);
+    -fx-border-color: #163852;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 3 8 3 8;
+}
+
+.menu-bar .menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5e1;
+}
+
+.menu-bar .menu-button:hover,
+.menu-bar .menu-button:showing {
+    -fx-background-color: #163852;
+    -fx-background-radius: 4;
+}
+
+.menu-bar .menu-button .label {
+    -fx-text-fill: #e2e8f0;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+}
+
+.context-menu {
+    -fx-background-color: #0d2133;
+    -fx-border-color: #1e4d6d;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0.3, 0, 4);
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 6 12 6 12;
+    -fx-background-radius: 4;
+}
+
+.menu-item .label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+}
+
+.menu-item:hover,
+.menu-item:focused {
+    -fx-background-color: #1e4d6d;
+}
+
+.menu-item:hover .label,
+.menu-item:focused .label {
+    -fx-text-fill: #38bdf8;
+}
+
+.separator-menu-item .line {
+    -fx-border-color: #163852;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* SEPARATORS */
+.separator *.line {
+    -fx-border-color: #163852;
+    -fx-border-width: 1 0 0 0;
+    -fx-opacity: 0.8;
+}
+
+/* PROGRESS BARS */
+.progress-bar {
+    -fx-pref-height: 14px;
+    -fx-background-color: #050f18;
+    -fx-background-radius: 8px;
+    -fx-border-color: #163852;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 1px;
+}
+
+.progress-bar > .track {
+    -fx-background-color: #07131e;
+    -fx-background-radius: 6px;
+}
+
+.progress-bar > .bar {
+    -fx-background-radius: 6px;
+    -fx-padding: 1px;
+}
+
+/* BUTTONS */
+.button {
+    -fx-background-color: linear-gradient(to bottom, #163852, #0d2133);
+    -fx-text-fill: #38bdf8;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-border-color: #1e4d6d;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 7 14 7 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0.2, 0, 2);
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #1e4d6d, #163852);
+    -fx-border-color: #38bdf8;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(56,189,248,0.4), 8, 0.3, 0, 0);
+}
+
+.button:pressed {
+    -fx-background-color: #07131e;
+    -fx-border-color: #0284c7;
+    -fx-text-fill: #38bdf8;
+}
+
+/* SCROLL BARS */
+.scroll-bar {
+    -fx-background-color: #07131e;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #163852;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #38bdf8;
+}

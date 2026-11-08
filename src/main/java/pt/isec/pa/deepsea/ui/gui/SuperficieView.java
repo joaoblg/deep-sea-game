@@ -55,10 +55,14 @@ public class SuperficieView extends CanvasPane {
         }
 
         gc.clearRect(0, 0, w, h);
-        gc.setFill(Color.web("#0e4b75"));
+        gc.setFill(Color.web("#0a1f33"));
         gc.fillRect(0, 0, w, h);
 
         desenharFundoMar(gc, w, h);
+
+        // Subtle dark blue tint over sea image for high-tech aesthetic
+        gc.setFill(Color.web("rgba(6, 25, 45, 0.45)"));
+        gc.fillRect(0, 0, w, h);
 
         int linhas = manager.getLinhasSuperficie();
         int colunas = manager.getColunasSuperficie();
@@ -76,16 +80,22 @@ public class SuperficieView extends CanvasPane {
                 double x = j * cellW;
                 double y = i * cellH;
 
-                gc.setStroke(Color.web("rgba(255, 255, 255, 0.15)"));
+                // Subtle tactical radar grid line
+                gc.setStroke(Color.web("rgba(56, 189, 248, 0.22)"));
                 gc.setLineWidth(1.0);
                 gc.strokeRect(x, y, cellW, cellH);
 
                 if (manager.contemArtefactoNaSuperficie(i, j)) {
-                    gc.setFill(Color.web("rgba(0,0,0,0.4)"));
-                    gc.fillOval(x + cellW * 0.35, y + cellH * 0.35, cellW * 0.4, cellH * 0.4);
+                    // Glowing target ring for artifact location
+                    gc.setFill(Color.web("rgba(245, 158, 11, 0.3)"));
+                    gc.fillOval(x + cellW * 0.25, y + cellH * 0.25, cellW * 0.5, cellH * 0.5);
+
+                    gc.setStroke(Color.web("#f59e0b"));
+                    gc.setLineWidth(1.5);
+                    gc.strokeOval(x + cellW * 0.25, y + cellH * 0.25, cellW * 0.5, cellH * 0.5);
 
                     if (imgArtefacto != null && !imgArtefacto.isError()) {
-                        gc.drawImage(imgArtefacto, x + cellW * 0.3, y + cellH * 0.3, cellW * 0.4, cellH * 0.4);
+                        gc.drawImage(imgArtefacto, x + cellW * 0.28, y + cellH * 0.28, cellW * 0.44, cellH * 0.44);
                     }
                 }
             }
@@ -98,9 +108,16 @@ public class SuperficieView extends CanvasPane {
         double ny = navioLinha * cellH;
 
         if (imgNavio != null && !imgNavio.isError()) {
-            gc.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
-            gc.fillOval(nx + cellW * 0.1, ny + cellH * 0.7, cellW * 0.8, cellH * 0.2);
-            gc.drawImage(imgNavio, nx, ny, cellW, cellH);
+            // Tactical active ship indicator ring
+            gc.setStroke(Color.web("#38bdf8"));
+            gc.setLineWidth(2.0);
+            gc.strokeRect(nx + 2, ny + 2, cellW - 4, cellH - 4);
+
+            // Water wake shadow
+            gc.setFill(Color.web("rgba(2, 6, 23, 0.6)"));
+            gc.fillOval(nx + cellW * 0.08, ny + cellH * 0.65, cellW * 0.84, cellH * 0.28);
+
+            gc.drawImage(imgNavio, nx + cellW * 0.05, ny + cellH * 0.05, cellW * 0.9, cellH * 0.9);
         }
     }
 

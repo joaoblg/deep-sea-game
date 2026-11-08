@@ -24,6 +24,11 @@ public class MainJFX extends Application {
         DeepSeaRoot root = new DeepSeaRoot(manager, stage);
         Scene scene = new Scene(root, 1024, 768);
 
+        java.net.URL cssUrl = getClass().getResource("/styles/deepsea.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+        }
+
         Image icon = ImageManager.getImage("logo.png");
         if (icon != null) {
             stage.getIcons().add(icon);
